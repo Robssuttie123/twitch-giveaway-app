@@ -43,6 +43,24 @@
     gap: 1rem;
   }
 
+  .logout-btn {
+  display: inline-block;
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+  margin-bottom: 0.5rem;
+}
+
+.logout-btn:hover {
+  background-color: #357abd;
+}
+
   .count {
     font-size: 3rem;
     font-weight: 700;
@@ -337,7 +355,8 @@
 </main>
 
 <footer>
-  Powered by Robssuttie123
+  <a href="/logout" class="logout-btn">Logout</a>
+  <p>Powered by Robssuttie123</p>
 </footer>
 
 <!-- Modal for Kick Confirmation -->
