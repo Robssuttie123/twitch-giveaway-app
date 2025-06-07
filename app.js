@@ -20,10 +20,26 @@ const io = new Server(server);
 app.use(express.json());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET, 
+  secret: process.env.SESSION_SECRET || 'BLANK FOR TESTING', // use env var in production
   resave: false,
   saveUninitialized: true,
 }));
+
+function authMiddleware(req, res, next) {
+  if (req.session && req.session.username) {
+    next(); // Authenticated
+  } else {
+    res.redirect('/'); // Redirect to login
+  }
+}
+
+app.get('/overlay', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'overlay.html'));
+});
+
+app.get('/dashboard', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
 
 // Serve static assets if needed (like socket.io.js) - you already serve overlay and dashboard explicitly
 
