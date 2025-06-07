@@ -46,7 +46,7 @@ function onNewEntry(user) {
 // Twitch app credentials
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/auth/twitch/callback';
+const REDIRECT_URI = process.env.REDIRECT_URI;
 
 // Serve overlay and dashboard pages
 app.get('/overlay', (req, res) => {
