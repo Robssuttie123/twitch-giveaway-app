@@ -211,6 +211,17 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
+app.get('/logout', async (req, res) => {
+  if (chatClient) {
+    await chatClient.disconnect();
+    chatClient = null;
+    console.log('Chat client disconnected on logout.');
+  }
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
 // Return current giveaway entries for dashboard
 app.get('/giveaway/entries', (req, res) => {
   res.json({
