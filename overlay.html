@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Giveaway Entries Overlay</title>
+<style>
+  body {
+    margin: 0;
+    padding: 1rem 2rem;
+    background: transparent;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center all content horizontally */
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 2px solid #9147ff;
+    padding-bottom: 0.25rem;
+    max-width: fit-content;
+  }
+
+  #count {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #9147ff;
+    text-align: center;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+
+    display: flex;
+    flex-wrap: wrap;       /* wrap items to new lines */
+    gap: 0.5rem 1rem;      /* spacing between items vertically and horizontally */
+    justify-content: center; /* center the entire list */
+    max-width: 100%;
+  }
+
+  li {
+    display: inline-block;
+    background: rgba(145, 71, 255, 0.15);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    opacity: 0;
+    animation: fadeIn 0.6s forwards;
+    white-space: nowrap; /* prevent username wrap */
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  #winner {
+    margin-top: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 0 0 10px #ffcc00;
+    animation: pulse 1.5s infinite;
+    white-space: pre-line;
+    text-align: center; /* center the winner text */
+    max-width: 90vw; /* prevent overflow on small screens */
+    word-wrap: break-word;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.85; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <h2>Giveaway Entries</h2>
+  <div id="count">0 entrants</div>
+  <ul id="entries"></ul>
+
+  <!-- Winner display -->
+  <div id="winner" style="display:none;"></div>
+
+  <!-- Socket.IO client script -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    let currentEntries = [];
+
+    async function fetchEntries() {
+      try {
+        const res = await fetch('/giveaway/entries');
+        if (!res.ok) throw new Error('Network response not OK');
+        const data = await res.json();
+
+        const ul = document.getElementById('entries');
+        const countDiv = document.getElementById('count');
+
+        countDiv.textContent = `${data.count} entrant${data.count !== 1 ? 's' : ''}`;
+
+        if (JSON.stringify(data.entries) !== JSON.stringify(currentEntries)) {
+          ul.innerHTML = '';
+          currentEntries = data.entries;
+
+          data.entries.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = user;
+            ul.appendChild(li);
+          });
+
+          const winnerDiv = document.getElementById('winner');
+          winnerDiv.style.display = 'none';
+          winnerDiv.textContent = '';
+        }
+      } catch (err) {
+        console.error('Failed to fetch entries:', err);
+      }
+    }
+
+    setInterval(fetchEntries, 5000);
+    fetchEntries();
+
+    const socket = io();
+
+    socket.on('newEntry', (user) => {
+      if (!currentEntries.includes(user.toLowerCase())) {
+        currentEntries.push(user.toLowerCase());
+
+        const ul = document.getElementById('entries');
+        const countDiv = document.getElementById('count');
+
+        const li = document.createElement('li');
+        li.textContent = user;
+        ul.appendChild(li);
+
+        countDiv.textContent = `${currentEntries.length} entrant${currentEntries.length !== 1 ? 's' : ''}`;
+      }
+    });
+
+    // Handle single or multiple winners
+    socket.on('winner', (winnerData) => {
+      const winnerDiv = document.getElementById('winner');
+      winnerDiv.style.display = 'block';
+
+      if (Array.isArray(winnerData)) {
+        const label = winnerData.length === 1 ? '🎉 Winner:\n' : '🎉 Winners:\n';
+        winnerDiv.textContent = label + winnerData.map(w => `⭐ ${w}`).join('\n');
+      } else {
+        winnerDiv.textContent = `🎉 Winner: ${winnerData} 🎉`;
+      }
+    });
+
+    socket.on('entries', (newEntries) => {
+      currentEntries = newEntries.map(e => e.toLowerCase());
+      const ul = document.getElementById('entries');
+      const countDiv = document.getElementById('count');
+
+      ul.innerHTML = '';
+      currentEntries.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user;
+        ul.appendChild(li);
+      });
+
+      countDiv.textContent = `${currentEntries.length} entrant${currentEntries.length !== 1 ? 's' : ''}`;
+
+      const winnerDiv = document.getElementById('winner');
+      winnerDiv.style.display = 'none';
+      winnerDiv.textContent = '';
+    });
+  </script>
+</body>
+</html>
