@@ -46,8 +46,20 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 // On client connection (overlay or dashboard)
 io.on('connection', (socket) => {
   console.log('Client connected via WebSocket');
-  // Send current entries on connection
   socket.emit('entries', Array.from(giveawayEntries));
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+
+    // Optional: delay chat disconnect to allow page reloads
+    setTimeout(async () => {
+      if (chatClient) {
+        await chatClient.disconnect();
+        chatClient = null;
+        console.log('Chat client disconnected after delay.');
+      }
+    }, 10 * 60 * 1000); // 10 minutes
+  });
 });
 
 // Emit new giveaway entries to all connected clients
@@ -311,6 +323,27 @@ app.post('/giveaway/command', async (req, res) => {
     }
   }
 
+  app.post('/auth/logout', async (req, res) => {
+  if (chatClient) {
+    try {
+      await chatClient.disconnect();
+      chatClient = null;
+      console.log(`Chat disconnected for ${req.session.username}`);
+    } catch (err) {
+      console.error('Error disconnecting chat:', err);
+    }
+  }
+
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Session destruction error:', err);
+      return res.status(500).send('Logout failed');
+    }
+    res.clearCookie('connect.sid'); // Clear session cookie
+    return res.redirect('/');
+  });
+});
+  
   res.json({ success: true, command });
 });
 
