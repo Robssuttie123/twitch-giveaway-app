@@ -20,7 +20,7 @@ const io = new Server(server);
 app.use(express.json());
 
 app.use(session({
-  secret: 'BLANK FOR TESTING', // Replace with a strong secret in production
+  secret: process.env.SESSION_SECRET, 
   resave: false,
   saveUninitialized: true,
 }));
@@ -44,9 +44,9 @@ function onNewEntry(user) {
 }
 
 // Twitch app credentials
-const CLIENT_ID = 'BLANK FOR TESTING';
-const CLIENT_SECRET = 'BLANK FOR TESTING';
-const REDIRECT_URI = 'http://localhost:3000/auth/twitch/callback';
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/auth/twitch/callback';
 
 // Serve overlay and dashboard pages
 app.get('/overlay', (req, res) => {
