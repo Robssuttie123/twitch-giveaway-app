@@ -20,7 +20,7 @@ const io = new Server(server);
 app.use(express.json());
 
 app.use(session({
-  secret: 'a_very_secure_secret_here', // Replace with a strong secret in production
+  secret: 'BLANK FOR TESTING', // Replace with a strong secret in production
   resave: false,
   saveUninitialized: true,
 }));
