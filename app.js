@@ -8,7 +8,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
  
 let chatClient = null;
-let giveawayEntries = new Set();
+// Removed global giveawayEntries; using session-based entries
 let giveawayCommand = '!giveaway';  // This can be updated dynamically
  
 const http = require('http');
@@ -88,12 +88,12 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 app.get('/overlay/:overlayId', (req, res) => {
   const { overlayId } = req.params;
 
-  // Serve the overlay without any session check
-  res.sendFile(path.join(__dirname, 'overlay.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+  // Only serve overlay if overlayId matches logged-in user's session overlayId
+  if (req.session && req.session.overlayId === overlayId) {
+    res.sendFile(path.join(__dirname, 'overlay.html'));
+  } else {
+    res.status(403).send('Forbidden: Invalid overlay URL');
+  }
 });
 
 // Step 1: Redirect streamer to Twitch login page
