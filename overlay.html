@@ -1,86 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Giveaway Entries Overlay</title>
-<style>
-  body {
-    margin: 0;
-    padding: 1rem 2rem;
-    background: transparent;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(0,0,0,0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* center all content horizontally */
-  }
-
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
-    border-bottom: 2px solid #9147ff;
-    padding-bottom: 0.25rem;
-    max-width: fit-content;
-  }
-
-  #count {
-    font-weight: bold;
-    margin-bottom: 1rem;
-    color: #9147ff;
-    text-align: center;
-  }
-
-  ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    max-height: 300px;
-    overflow-y: auto;
-
-    display: flex;
-    flex-wrap: wrap;       /* wrap items to new lines */
-    gap: 0.5rem 1rem;      /* spacing between items vertically and horizontally */
-    justify-content: center; /* center the entire list */
-    max-width: 100%;
-  }
-
-  li {
-    display: inline-block;
-    background: rgba(145, 71, 255, 0.15);
-    padding: 0.4rem 0.8rem;
-    border-radius: 4px;
-    opacity: 0;
-    animation: fadeIn 0.6s forwards;
-    white-space: nowrap; /* prevent username wrap */
-  }
-
-  @keyframes fadeIn {
-    to {
-      opacity: 1;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giveaway Entries Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 1rem 2rem;
+      background: transparent;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-  }
 
-  #winner {
-    margin-top: 2rem;
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ffcc00;
-    text-shadow: 0 0 10px #ffcc00;
-    animation: pulse 1.5s infinite;
-    white-space: pre-line;
-    text-align: center; /* center the winner text */
-    max-width: 90vw; /* prevent overflow on small screens */
-    word-wrap: break-word;
-  }
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+      border-bottom: 2px solid #9147ff;
+      padding-bottom: 0.25rem;
+      max-width: fit-content;
+    }
 
-  @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.85; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-</style>
+    #count {
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #9147ff;
+      text-align: center;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      max-height: 300px;
+      overflow-y: auto;
+
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      justify-content: center;
+      max-width: 100%;
+    }
+
+    li {
+      display: inline-block;
+      background: rgba(145, 71, 255, 0.15);
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      opacity: 0;
+      animation: fadeIn 0.6s forwards;
+      white-space: nowrap;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    #winner {
+      margin-top: 2rem;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffcc00;
+      text-shadow: 0 0 10px #ffcc00;
+      animation: pulse 1.5s infinite;
+      white-space: pre-line;
+      text-align: center;
+      max-width: 90vw;
+      word-wrap: break-word;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.85; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <h2>Giveaway Entries</h2>
@@ -96,27 +96,32 @@
   <script>
     let currentEntries = [];
 
+    // Function to fetch current entries from the backend
     async function fetchEntries() {
       try {
-        const res = await fetch('/giveaway/entries');
+        const res = await fetch('/giveaway/entries', { credentials: 'include' });
         if (!res.ok) throw new Error('Network response not OK');
         const data = await res.json();
 
         const ul = document.getElementById('entries');
         const countDiv = document.getElementById('count');
 
+        // Update the entrant count
         countDiv.textContent = `${data.count} entrant${data.count !== 1 ? 's' : ''}`;
 
+        // Only update the entries if they're different
         if (JSON.stringify(data.entries) !== JSON.stringify(currentEntries)) {
           ul.innerHTML = '';
           currentEntries = data.entries;
 
+          // Create a new list item for each entry
           data.entries.forEach(user => {
             const li = document.createElement('li');
             li.textContent = user;
             ul.appendChild(li);
           });
 
+          // Reset winner display when entries change
           const winnerDiv = document.getElementById('winner');
           winnerDiv.style.display = 'none';
           winnerDiv.textContent = '';
@@ -126,11 +131,13 @@
       }
     }
 
+    // Update entries every 5 seconds
     setInterval(fetchEntries, 5000);
-    fetchEntries();
+    fetchEntries(); // Initial fetch when the page loads
 
     const socket = io();
 
+    // Handle new entry from WebSocket
     socket.on('newEntry', (user) => {
       if (!currentEntries.includes(user.toLowerCase())) {
         currentEntries.push(user.toLowerCase());
@@ -146,11 +153,12 @@
       }
     });
 
-    // Handle single or multiple winners
+    // Handle winner announcement from WebSocket
     socket.on('winner', (winnerData) => {
       const winnerDiv = document.getElementById('winner');
       winnerDiv.style.display = 'block';
 
+      // Handle multiple winners or a single winner
       if (Array.isArray(winnerData)) {
         const label = winnerData.length === 1 ? '🎉 Winner:\n' : '🎉 Winners:\n';
         winnerDiv.textContent = label + winnerData.map(w => `⭐ ${w}`).join('\n');
@@ -159,6 +167,7 @@
       }
     });
 
+    // Handle entries update from WebSocket
     socket.on('entries', (newEntries) => {
       currentEntries = newEntries.map(e => e.toLowerCase());
       const ul = document.getElementById('entries');
@@ -173,6 +182,7 @@
 
       countDiv.textContent = `${currentEntries.length} entrant${currentEntries.length !== 1 ? 's' : ''}`;
 
+      // Hide winner display when entries are updated
       const winnerDiv = document.getElementById('winner');
       winnerDiv.style.display = 'none';
       winnerDiv.textContent = '';

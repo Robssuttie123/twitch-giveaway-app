@@ -3,6 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -13,25 +14,86 @@ let giveawayCommand = '!giveaway';  // This can be updated dynamically
 
 const http = require('http');
 const { Server } = require('socket.io');
-
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.json());
 
+// Session middleware for handling user-specific sessions
 app.use(session({
-  secret: 'a_very_secure_secret_here', // Replace with a strong secret in production
+  secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING', // Set a strong secret key in production
   resave: false,
   saveUninitialized: true,
+  cookie: { secure: true }, // Set to true for HTTPS
 }));
+
+// Auth middleware to ensure users are logged in for certain routes
+function authMiddleware(req, res, next) {
+  if (req.session && req.session.username) {
+    next(); // Proceed if authenticated
+  } else {
+    res.redirect('/'); // Redirect to login if not authenticated
+  }
+}
+
+// Route to start a giveaway and store data in session
+app.post('/start-giveaway', authMiddleware, (req, res) => {
+  const { giveawayName, giveawayItems } = req.body;
+
+  // Store giveaway data in session for the authenticated user
+  req.session.giveaway = {
+    giveawayName,
+    giveawayItems,
+  };
+
+  res.send({ message: 'Giveaway started successfully' });
+});
+
+// Route to fetch the current user's giveaway data
+app.get('/get-giveaway', authMiddleware, (req, res) => {
+  if (req.session.giveaway) {
+    res.send(req.session.giveaway);
+  } else {
+    res.send({ message: 'No giveaway found for this user' });
+  }
+});
+
+// Route to handle overlay (still keeping your existing functionality)
+app.get('/api/overlay-id', (req, res) => {
+  if (req.session && req.session.overlayId) {
+    res.json({ overlayId: req.session.overlayId });
+  } else {
+    res.status(404).json({ error: 'Overlay ID not found' });
+  }
+});
+
+app.get('/overlay', (req, res) => {
+  res.sendFile(path.join(__dirname, 'overlay.html'));
+});
+
+app.get('/dashboard', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
 
 // Serve static assets if needed (like socket.io.js) - you already serve overlay and dashboard explicitly
 
 // On client connection (overlay or dashboard)
 io.on('connection', (socket) => {
   console.log('Client connected via WebSocket');
-  // Send current entries on connection
   socket.emit('entries', Array.from(giveawayEntries));
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+
+    // Optional: delay chat disconnect to allow page reloads
+    setTimeout(async () => {
+      if (chatClient) {
+        await chatClient.disconnect();
+        chatClient = null;
+        console.log('Chat client disconnected after delay.');
+      }
+    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
+  });
 });
 
 // Emit new giveaway entries to all connected clients
@@ -44,17 +106,14 @@ function onNewEntry(user) {
 }
 
 // Twitch app credentials
-const CLIENT_ID = 'BLANK FOR TESTING';
-const CLIENT_SECRET = 'BLANK FOR TESTING';
-const REDIRECT_URI = 'http://localhost:3000/auth/twitch/callback';
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI;
 
 // Serve overlay and dashboard pages
-app.get('/overlay', (req, res) => {
-  res.sendFile(path.join(__dirname, 'overlay.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+app.get('/overlay/:overlayId', (req, res) => {
+  // Serve the overlay page without authentication checks
+  res.sendFile(path.join(__dirname, 'overlay.html')); // or whatever HTML page you're serving
 });
 
 // Step 1: Redirect streamer to Twitch login page
@@ -95,6 +154,8 @@ app.get('/auth/twitch/callback', async (req, res) => {
     const username = userResponse.data.data[0].login;
     req.session.username = username;
 
+    req.session.overlayId = crypto.randomBytes(16).toString('hex');
+
     // Disconnect previous chat client if exists
     if (chatClient) {
       await chatClient.disconnect();
@@ -117,7 +178,17 @@ app.get('/auth/twitch/callback', async (req, res) => {
   }
 });
 
-// Homepage - styled landing page with dashboard color scheme
+app.get('/logout', async (req, res) => {
+  if (chatClient) {
+    await chatClient.disconnect();
+    chatClient = null;
+    console.log('Chat client disconnected on logout.');
+  }
+  req.session.destroy(() => {
+    res.redirect('/?loggedout=true');
+  });
+});
+
 app.get('/', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -138,6 +209,7 @@ app.get('/', (req, res) => {
       justify-content: center;
       align-items: center;
       text-align: center;
+      position: relative;
     }
     h1 {
       font-size: 3rem;
@@ -172,6 +244,21 @@ app.get('/', (req, res) => {
       font-weight: 500;
       font-family: 'Montserrat', sans-serif;
     }
+    .popup {
+      position: fixed;
+      bottom: 2rem;
+      background-color: rgba(0,0,0,0.8);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+      animation: fadein 0.3s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -179,6 +266,21 @@ app.get('/', (req, res) => {
   <p> The most simple and efficient tool for Twitch giveaways! </p>
   <a href="/auth/twitch" class="login-btn">Login with Twitch</a>
   <footer>Powered by Robssuttie123</footer>
+
+  <script>
+    // Show logout popup if ?loggedout=true in URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('loggedout') === 'true') {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.innerText = 'You have been logged out successfully!';
+      document.body.appendChild(popup);
+      setTimeout(() => {
+        popup.remove();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 4000);
+    }
+  </script>
 </body>
 </html>`);
 });
@@ -299,5 +401,4 @@ app.post('/giveaway/command', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`
-));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

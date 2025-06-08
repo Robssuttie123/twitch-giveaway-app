@@ -1,298 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Giveaway Dashboard</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-  body {
-    margin: 0;
-    background: linear-gradient(135deg, #4a90e2, #9013fe);
-    font-family: 'Montserrat', sans-serif;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  header {
-    background: rgba(0,0,0,0.3);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
-
-  header h1 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 2.2rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  }
-
-  main {
-    flex: 1;
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .count {
-    font-size: 3rem;
-    font-weight: 700;
-    text-align: center;
-    letter-spacing: 2px;
-    text-shadow: 0 3px 6px rgba(0,0,0,0.7);
-  }
-
-  .entries {
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 1rem 2rem;
-    max-height: 300px;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  }
-
-  .entries ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .entries li {
-    font-size: 1.25rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-    transition: background-color 0.3s ease;
-    cursor: default;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .entries li:last-child {
-    border-bottom: none;
-  }
-
-  .entries li.new-entry {
-    animation: highlight 2s ease forwards;
-  }
-
-  @keyframes highlight {
-    0% {
-      background-color: rgba(255, 255, 255, 0.4);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giveaway Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    100% {
-      background-color: transparent;
+    header {
+      background: rgba(0,0,0,0.3);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-  }
-
-  .kick-btn {
-    background-color: #ff4d4d;
-    border: none;
-    color: white;
-    font-weight: 700;
-    font-size: 0.9rem;
-    padding: 0.25rem 0.7rem;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: background-color 0.3s ease;
-  }
-
-  .kick-btn:hover {
-    background-color: #d93636;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  button {
-    background-color: #4a90e2;
-    border: none;
-    color: white;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: background-color 0.3s ease;
-  }
-
-  button:hover:enabled {
-    background-color: #357abd;
-  }
-
-  button:disabled {
-    background-color: rgba(74, 144, 226, 0.5);
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .winner {
-    margin-top: 1rem;
-    font-size: 1.5rem;
-    text-align: center;
-    font-weight: 700;
-    color: #ffd700;
-    text-shadow: 0 0 5px #ffd700;
-  }
-
-  input[type="number"], input[type="text"] {
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: none;
-    font-size: 1rem;
-    text-align: center;
-  }
-
-  input[type="number"] {
-    width: 60px;
-  }
-
-  .number-winners-container {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .number-winners-container label {
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    font-size: 1rem;
-  }
-
-  .command-setter {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .command-setter input {
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    border: none;
-    font-size: 1rem;
-    width: 200px;
-  }
-
-  .command-setter button {
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    background-color: #00c853;
-  }
-
-  .command-setter button:hover {
-    background-color: #00a045;
-  }
-
-  .command-feedback {
-    text-align: center;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: #fff;
-  }
-
-  footer {
-    text-align: center;
-    padding: 1rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  /* --- Modal styles --- */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.75);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  .modal-overlay.active {
-    display: flex;
-  }
-
-  .modal {
-    background: #222;
-    border-radius: 12px;
-    padding: 2rem 3rem;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.7);
-    text-align: center;
-  }
-
-  .modal h2 {
-    margin-top: 0;
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #ff4d4d;
-    margin-bottom: 1rem;
-  }
-
-  .modal p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-  }
-
-  .modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-  }
-
-  .modal-button {
-    padding: 0.6rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 700;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: background-color 0.3s ease;
-  }
-
-  .modal-button.confirm {
-    background-color: #ff4d4d;
-    color: white;
-  }
-
-  .modal-button.confirm:hover {
-    background-color: #d93636;
-  }
-
-  .modal-button.cancel {
-    background-color: #555;
-    color: white;
-  }
-
-  .modal-button.cancel:hover {
-    background-color: #333;
-  }
-</style>
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .logout-btn {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      background-color: #4a90e2;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+      margin-bottom: 0.5rem;
+    }
+    .logout-btn:hover {
+      background-color: #357abd;
+    }
+    .count {
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.7);
+    }
+    .entries {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .entries ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .entries li {
+      font-size: 1.25rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      transition: background-color 0.3s ease;
+      cursor: default;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .entries li:last-child {
+      border-bottom: none;
+    }
+    .entries li.new-entry {
+      animation: highlight 2s ease forwards;
+    }
+    @keyframes highlight {
+      0% {
+        background-color: rgba(255, 255, 255, 0.4);
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+    .kick-btn {
+      background-color: #ff4d4d;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+    }
+    .kick-btn:hover {
+      background-color: #d93636;
+    }
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      background-color: #4a90e2;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+    }
+    button:hover:enabled {
+      background-color: #357abd;
+    }
+    button:disabled {
+      background-color: rgba(74, 144, 226, 0.5);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .winner {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 5px #ffd700;
+    }
+    input[type="number"], input[type="text"] {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      text-align: center;
+    }
+    input[type="number"] {
+      width: 60px;
+    }
+    .number-winners-container {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .number-winners-container label {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      font-size: 1rem;
+    }
+    .command-setter {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .command-setter input {
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      width: 200px;
+    }
+    .command-setter button {
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      background-color: #00c853;
+    }
+    .command-setter button:hover {
+      background-color: #00a045;
+    }
+    .command-feedback {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+  </style>
 </head>
 <body>
 
@@ -312,7 +225,6 @@
     <button id="btnPickWinner" aria-label="Pick giveaway winner(s)">Pick Winner(s)</button>
   </div>
 
-  <!-- Number of winners input below buttons -->
   <div class="number-winners-container">
     <label for="winnerCount">Number of winners</label>
     <input
@@ -334,39 +246,32 @@
   <div class="command-feedback" id="commandFeedback" role="alert" aria-live="polite"></div>
 
   <div class="winner" id="winnerAnnouncement" aria-live="assertive" aria-atomic="true"></div>
+
+  <div style="margin: 20px 0;">
+    <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
+    <input id="overlay-url" type="text" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
+    <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
+  </div>
+
 </main>
 
 <footer>
-  Powered by Robssuttie123
+  <a href="/logout" class="logout-btn">Logout</a>
+  <p>Powered by Robssuttie123</p>
 </footer>
-
-<!-- Modal for Kick Confirmation -->
-<div id="kickModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc" tabindex="-1">
-  <div class="modal">
-    <h2 id="modalTitle">Confirm Kick</h2>
-    <p id="modalDesc">Are you sure you want to kick <strong id="modalUsername"></strong> from the giveaway?</p>
-    <div class="modal-buttons">
-      <button class="modal-button confirm" id="confirmKickBtn">Yes, Kick</button>
-      <button class="modal-button cancel" id="cancelKickBtn">Cancel</button>
-    </div>
-  </div>
-</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
-
   const entriesList = document.getElementById('entriesList');
   const entryCount = document.getElementById('entryCount');
   const winnerAnnouncement = document.getElementById('winnerAnnouncement');
   const commandInput = document.getElementById('commandInput');
   const setCommandBtn = document.getElementById('setCommandBtn');
   const commandFeedback = document.getElementById('commandFeedback');
-
   const btnClear = document.getElementById('btnClear');
   const btnPickWinner = document.getElementById('btnPickWinner');
   const winnerCountInput = document.getElementById('winnerCount');
-
   const kickModal = document.getElementById('kickModal');
   const modalUsernameElem = document.getElementById('modalUsername');
   const confirmKickBtn = document.getElementById('confirmKickBtn');
@@ -374,13 +279,8 @@
 
   const currentEntries = new Set();
 
-  // Variables to hold state for modal
-  let userToKick = null;
-  let liToRemove = null;
-
   function updateCount() {
     entryCount.textContent = `Entries: ${currentEntries.size}`;
-    // Disable buttons if no entries
     const disabled = currentEntries.size === 0;
     btnClear.disabled = disabled;
     btnPickWinner.disabled = disabled;
@@ -390,30 +290,6 @@
     currentEntries.clear();
     entriesList.innerHTML = '';
     updateCount();
-    winnerAnnouncement.textContent = '';
-  }
-
-  async function kickUser(username, liElement) {
-    try {
-      const res = await fetch('/giveaway/kick', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        alert(`Failed to kick user: ${data.error || res.statusText}`);
-      } else {
-        // Remove user from currentEntries and UI
-        currentEntries.delete(username);
-        if (liElement && liElement.parentNode) {
-          liElement.parentNode.removeChild(liElement);
-        }
-        updateCount();
-      }
-    } catch (err) {
-      alert('Error kicking user: ' + err.message);
-    }
   }
 
   function addEntry(username) {
@@ -428,7 +304,6 @@
     kickBtn.classList.add('kick-btn');
     kickBtn.setAttribute('aria-label', `Kick ${username} from giveaway`);
     kickBtn.addEventListener('click', () => {
-      // Show modal instead of native confirm
       userToKick = username;
       liToRemove = li;
       modalUsernameElem.textContent = username;
@@ -447,6 +322,7 @@
     updateCount();
   }
 
+  // WebSocket listeners
   socket.on('entries', (entries) => {
     clearEntries();
     entries.forEach(username => addEntry(username));
@@ -524,36 +400,6 @@
     }
   };
 
-  // Enforce that the input starts with '!' and can't delete or type before it
-  commandInput.addEventListener('keydown', (e) => {
-    if ((e.key === 'Backspace' || e.key === 'ArrowLeft') && commandInput.selectionStart <= 1) {
-      e.preventDefault();
-    }
-  });
-
-  commandInput.addEventListener('input', () => {
-    if (!commandInput.value.startsWith('!')) {
-      commandInput.value = '!' + commandInput.value.replace(/!/g, '');
-    }
-    if (commandInput.selectionStart < 1) {
-      commandInput.setSelectionRange(1, 1);
-    }
-  });
-
-  commandInput.addEventListener('click', () => {
-    if (commandInput.selectionStart < 1) {
-      commandInput.setSelectionRange(1, 1);
-    }
-  });
-
-  commandInput.addEventListener('focus', () => {
-    setTimeout(() => {
-      if (commandInput.selectionStart < 1) {
-        commandInput.setSelectionRange(1, 1);
-      }
-    }, 0);
-  });
-
   // Modal control functions
   function openModal() {
     kickModal.classList.add('active');
@@ -579,6 +425,38 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && kickModal.classList.contains('active')) {
       closeModal();
+    }
+  });
+
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('/api/overlay-id')
+    .then(res => res.json())
+    .then(data => {
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch(() => {
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
     }
   });
 
