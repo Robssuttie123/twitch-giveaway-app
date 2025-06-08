@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
         chatClient = null;
         console.log('Chat client disconnected after delay.');
       }
-    }, 10 * 60 * 1000); // 10 minutes
+    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
   });
 });
 
