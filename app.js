@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
 // Emit new giveaway entries to all connected clients
 function onNewEntry(user) {
   const normalizedUser = user.toLowerCase();
-  if (req.session.giveawayState ? req.session.giveawayState.entries || new Set().has(normalizedUser)) return; // Prevent duplicates
+  if (req.session.giveawayState && req.session.giveawayState.entries.has(normalizedUser)) return; // Prevent duplicates
   console.log(`New giveaway entry: ${user}`);
   req.session.giveawayState ? req.session.giveawayState.entries || new Set().add(normalizedUser);
   io.emit('newEntry', user);
@@ -86,10 +86,8 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 
 // Serve overlay and dashboard pages
 app.get('/overlay/:overlayId', (req, res) => {
-  const { overlayId } = req.params;
-
-  // Serve the overlay without any session check
-  res.sendFile(path.join(__dirname, 'overlay.html'));
+  // Serve the overlay page without authentication checks
+  res.sendFile(path.join(__dirname, 'overlay.html')); // or whatever HTML page you're serving
 });
 
 // Step 1: Redirect streamer to Twitch login page
