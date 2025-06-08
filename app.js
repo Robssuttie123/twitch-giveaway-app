@@ -54,7 +54,7 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 // On client connection (overlay or dashboard)
 io.on('connection', (socket) => {
   console.log('Client connected via WebSocket');
-  socket.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set()));
+  socket.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
@@ -265,7 +265,7 @@ app.get('/', (req, res) => {
 // Return current giveaway entries for dashboard
 app.get('/giveaway/entries', (req, res) => {
   res.json({
-    entries: Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set()),
+    entries: Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()),
     count: req.session.giveawayState ? req.session.giveawayState.entries || new Set().size,
   });
 });
@@ -274,7 +274,7 @@ app.get('/giveaway/entries', (req, res) => {
 app.post('/giveaway/clear', (req, res) => {
   req.session.giveawayState ? req.session.giveawayState.entries || new Set().clear();
   resetEntries();  // clear chatListener entries if applicable
-  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set()));
+  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
   res.sendStatus(200);
 });
 
@@ -286,7 +286,7 @@ app.get('/giveaway/winner', (req, res) => {
     return res.status(400).json({ error: 'No entries to pick from' });
   }
 
-  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set());
+  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set());
 
   if (count > entriesArray.length) {
     return res.status(400).json({ error: 'Not enough entries for that many winners' });
@@ -309,7 +309,7 @@ app.get('/giveaway/redraw_winner', (req, res) => {
     return res.status(400).json({ error: 'No entries to pick from' });
   }
 
-  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set());
+  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set());
 
   if (count > entriesArray.length) {
     return res.status(400).json({ error: 'Not enough entries for that many winners' });
@@ -328,7 +328,7 @@ app.get('/giveaway/redraw_winner', (req, res) => {
 app.post('/giveaway/new', (req, res) => {
   req.session.giveawayState ? req.session.giveawayState.entries || new Set().clear();
   resetEntries();
-  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set()));
+  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
   res.sendStatus(200);
 });
 
@@ -342,7 +342,7 @@ app.post('/giveaway/kick', (req, res) => {
   const normalizedUser = username.toLowerCase();
   if (req.session.giveawayState ? req.session.giveawayState.entries || new Set().has(normalizedUser)) {
     req.session.giveawayState ? req.session.giveawayState.entries || new Set().delete(normalizedUser);
-    io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries || new Set()));
+    io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
     return res.sendStatus(200);
   } else {
     return res.status(404).json({ error: 'User not found in entries' });
