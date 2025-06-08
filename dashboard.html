@@ -16,45 +16,6 @@
     min-height: 100vh;   
   }
 
-  <div style="margin: 20px 0;">
-  <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
-  <input id="overlay-url" type="text" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
-  <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
-</div>
-
-<script>
-  const overlayInput = document.getElementById('overlay-url');
-  const copyBtn = document.getElementById('copy-btn');
-
-  fetch('/api/overlay-id')
-    .then(res => res.json())
-    .then(data => {
-      if (data.overlayId) {
-        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
-        overlayInput.value = overlayUrl;
-      } else {
-        overlayInput.value = 'Overlay URL not available';
-      }
-    })
-    .catch(() => {
-      overlayInput.value = 'Error fetching overlay URL';
-    });
-
-  copyBtn.addEventListener('click', () => {
-    overlayInput.select();
-    overlayInput.setSelectionRange(0, 99999); // For mobile
-
-    if (document.execCommand('copy')) {
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => {
-        copyBtn.textContent = 'Copy';
-      }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
-    }
-  });
-</script>
-
   header {
     background: rgba(0,0,0,0.3);
     padding: 1.5rem 2rem;
