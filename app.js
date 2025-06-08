@@ -4,9 +4,17 @@ const axios = require('axios');
 const session = require('express-session');
 const path = require('path');
 const crypto = require('crypto');
+const cors = require('cors');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
+
+// CORS configuration
+app.use(cors({
+  origin: 'https://Robssuttie123.github.io',  // Replace with your actual GitHub Pages URL
+  methods: ['GET', 'POST'],
+  credentials: true,  // Allow cookies (session) to be sent with requests
+}));
 
 let chatClient = null;
 let giveawayEntries = new Set();
@@ -24,7 +32,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING', // Set a strong secret key in production
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }, // Set to true for HTTPS
+  cookie: { secure: false }, // Set to true for HTTPS
 }));
 
 // Auth middleware to ensure users are logged in for certain routes
