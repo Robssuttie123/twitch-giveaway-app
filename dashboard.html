@@ -352,6 +352,13 @@
   <div class="command-feedback" id="commandFeedback" role="alert" aria-live="polite"></div>
 
   <div class="winner" id="winnerAnnouncement" aria-live="assertive" aria-atomic="true"></div>
+
+  <div style="margin: 20px 0;">
+    <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
+    <input id="overlay-url" type="text" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
+    <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
+  </div>
+
 </main>
 
 <footer>
@@ -409,6 +416,38 @@
     currentEntries.clear();
     entriesList.innerHTML = '';
     updateCount();
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('/api/overlay-id')
+    .then(res => res.json())
+    .then(data => {
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch(() => {
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
     winnerAnnouncement.textContent = '';
   }
 
@@ -429,6 +468,38 @@
           liElement.parentNode.removeChild(liElement);
         }
         updateCount();
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('/api/overlay-id')
+    .then(res => res.json())
+    .then(data => {
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch(() => {
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
       }
     } catch (err) {
       alert('Error kicking user: ' + err.message);
@@ -464,6 +535,38 @@
     });
 
     updateCount();
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('/api/overlay-id')
+    .then(res => res.json())
+    .then(data => {
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch(() => {
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
   }
 
   socket.on('entries', (entries) => {
@@ -603,6 +706,38 @@
 
   // Initial state
   updateCount();
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('/api/overlay-id')
+    .then(res => res.json())
+    .then(data => {
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch(() => {
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
 </script>
 
 </body>
