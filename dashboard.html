@@ -427,34 +427,23 @@
       if (data.overlayId) {
         const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
         overlayInput.value = overlayUrl;
-        hiddenInput.value = overlayUrl; // Hidden for copying
       } else {
         overlayInput.value = 'Overlay URL not available';
-        hiddenInput.value = '';
       }
     })
     .catch(() => {
       overlayInput.value = 'Error fetching overlay URL';
-      hiddenInput.value = '';
     });
 
   copyBtn.addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText(hiddenInput.value);
+      await navigator.clipboard.writeText(overlayInput.value);
       copyBtn.textContent = 'Copied!';
-      setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
     } catch (err) {
-      // fallback for older browsers
-      hiddenInput.select();
-      try {
-        const success = document.execCommand('copy');
-        if (success) {
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => copyBtn.textContent = 'Copy', 2000);
-        }
-      } catch {
-        // Do nothing silently
-      }
+      alert('Failed to copy. Please copy manually.');
     }
   });
 
