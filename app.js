@@ -88,14 +88,6 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 app.get('/overlay/:overlayId', (req, res) => {
   const { overlayId } = req.params;
 
-  // Only serve overlay if overlayId matches logged-in user's session overlayId
-  if (req.session && req.session.overlayId === overlayId) {
-    res.sendFile(path.join(__dirname, 'overlay.html'));
-  } else {
-    res.status(403).send('Forbidden: Invalid overlay URL');
-  }
-});
-
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
