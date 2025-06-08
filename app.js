@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
-
+ 
 let chatClient = null;
 let giveawayEntries = new Set();
 let giveawayCommand = '!giveaway';  // This can be updated dynamically
