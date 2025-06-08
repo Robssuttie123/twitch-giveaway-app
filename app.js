@@ -33,14 +33,6 @@ function authMiddleware(req, res, next) {
   }
 }
 
-app.get('/api/overlay-id', (req, res) => {
-  if (req.session && req.session.overlayId) {
-    res.json({ overlayId: req.session.overlayId });
-  } else {
-    res.status(404).json({ error: 'Overlay ID not found' });
-  }
-});
-
 app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, 'overlay.html'));
 });
