@@ -434,17 +434,15 @@
       overlayInput.value = 'Error fetching overlay URL';
     });
 
-  copyBtn.addEventListener('click', () => {
-    overlayInput.select();
-    overlayInput.setSelectionRange(0, 99999); // For mobile
-
-    if (document.execCommand('copy')) {
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(overlayInput.value);
       copyBtn.textContent = 'Copied!';
       setTimeout(() => {
         copyBtn.textContent = 'Copy';
       }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
+    } catch (err) {
+      alert('Failed to copy. Please copy manually.');
     }
   });
 
