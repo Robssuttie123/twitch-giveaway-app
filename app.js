@@ -86,7 +86,7 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 
 // Serve overlay and dashboard pages
 app.get('/overlay/:overlayId', (req, res) => {
-  const { overlayId } = req.params;
+  const { overlayId } = req.params};
 
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
