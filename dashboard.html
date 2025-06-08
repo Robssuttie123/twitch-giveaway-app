@@ -379,7 +379,54 @@
   </div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js">
+  function loadOverlayUrl() {
+    const overlayInput = document.getElementById('overlay-url');
+    const hiddenInput = document.getElementById('overlay-copy');
+    const copyBtn = document.getElementById('copy-btn');
+
+    fetch('/api/overlay-id')
+      .then(res => res.json())
+      .then(data => {
+        if (data.overlayId) {
+          const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+          overlayInput.value = overlayUrl;
+          hiddenInput.value = overlayUrl;
+        } else {
+          overlayInput.value = 'Overlay URL not available';
+          hiddenInput.value = '';
+        }
+      })
+      .catch(() => {
+        overlayInput.value = 'Error fetching overlay URL';
+        hiddenInput.value = '';
+      });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(hiddenInput.value);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+        }, 2000);
+      } catch (err) {
+        try {
+          hiddenInput.select();
+          const successful = document.execCommand('copy');
+          if (successful) {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+          }
+        } catch (e) {
+          alert('Failed to copy. Please copy manually.');
+        }
+      }
+    });
+  }
+
+
+  loadOverlayUrl();
+</script>
 <script>
   const socket = io();
 
@@ -744,6 +791,53 @@ copyBtn.addEventListener('click', async () => {
   }
 });
 
+
+  function loadOverlayUrl() {
+    const overlayInput = document.getElementById('overlay-url');
+    const hiddenInput = document.getElementById('overlay-copy');
+    const copyBtn = document.getElementById('copy-btn');
+
+    fetch('/api/overlay-id')
+      .then(res => res.json())
+      .then(data => {
+        if (data.overlayId) {
+          const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+          overlayInput.value = overlayUrl;
+          hiddenInput.value = overlayUrl;
+        } else {
+          overlayInput.value = 'Overlay URL not available';
+          hiddenInput.value = '';
+        }
+      })
+      .catch(() => {
+        overlayInput.value = 'Error fetching overlay URL';
+        hiddenInput.value = '';
+      });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(hiddenInput.value);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+        }, 2000);
+      } catch (err) {
+        try {
+          hiddenInput.select();
+          const successful = document.execCommand('copy');
+          if (successful) {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+          }
+        } catch (e) {
+          alert('Failed to copy. Please copy manually.');
+        }
+      }
+    });
+  }
+
+
+  loadOverlayUrl();
 </script>
 
 </body>
