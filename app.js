@@ -33,6 +33,14 @@ function authMiddleware(req, res, next) {
   }
 }
 
+app.get('/api/overlay-id', authMiddleware, (req, res) => {
+  if (req.session && req.session.overlayId) {
+    res.json({ overlayId: req.session.overlayId });
+  } else {
+    res.status(404).json({ error: 'Overlay ID not found' });
+  }
+});
+
 app.get('/overlay', authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, 'overlay.html'));
 });
@@ -77,8 +85,15 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
 // Serve overlay and dashboard pages
-app.get('/overlay', (req, res) => {
-  res.sendFile(path.join(__dirname, 'overlay.html'));
+app.get('/overlay/:overlayId', (req, res) => {
+  const { overlayId } = req.params;
+
+  // Only serve overlay if overlayId matches logged-in user's session overlayId
+  if (req.session && req.session.overlayId === overlayId) {
+    res.sendFile(path.join(__dirname, 'overlay.html'));
+  } else {
+    res.status(403).send('Forbidden: Invalid overlay URL');
+  }
 });
 
 app.get('/dashboard', (req, res) => {
@@ -122,6 +137,9 @@ app.get('/auth/twitch/callback', async (req, res) => {
 
     const username = userResponse.data.data[0].login;
     req.session.username = username;
+
+    const crypto = require('crypto');
+    req.session.overlayId = crypto.randomBytes(16).toString('hex');
 
     // Disconnect previous chat client if exists
     if (chatClient) {
