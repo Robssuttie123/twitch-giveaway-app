@@ -49,8 +49,12 @@ app.get('/api/overlay-id', (req, res) => {
   }
 });
 
-app.get('/overlay', authMiddleware, (req, res) => {
+app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, 'overlay.html'));
+});
+
+app.get('/dashboard', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
 // Serve static assets if needed (like socket.io.js) - you already serve overlay and dashboard explicitly
