@@ -354,9 +354,10 @@
   <div class="winner" id="winnerAnnouncement" aria-live="assertive" aria-atomic="true"></div>
 
   <div style="margin: 20px 0;">
-    <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
-    <input id="overlay-url" type="password" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
-    <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
+  <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
+  <input id="overlay-url" type="password" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
+  <input id="overlay-copy" type="text" style="position: absolute; left: -9999px;" />
+  <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
   </div>
 
 </main>
@@ -467,7 +468,8 @@
         }
         updateCount();
   // Fetch and display overlay URL
-  const overlayInput = document.getElementById('overlay-url');
+const overlayInput = document.getElementById('overlay-url');
+  const hiddenInput = document.getElementById('overlay-copy');
   const copyBtn = document.getElementById('copy-btn');
 
   fetch('/api/overlay-id')
@@ -476,25 +478,38 @@
       if (data.overlayId) {
         const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
         overlayInput.value = overlayUrl;
+        hiddenInput.value = overlayUrl; // For copying
       } else {
         overlayInput.value = 'Overlay URL not available';
+        hiddenInput.value = '';
       }
     })
     .catch(() => {
       overlayInput.value = 'Error fetching overlay URL';
+      hiddenInput.value = '';
     });
 
-  copyBtn.addEventListener('click', () => {
-    overlayInput.select();
-    overlayInput.setSelectionRange(0, 99999); // For mobile
-
-    if (document.execCommand('copy')) {
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(hiddenInput.value);
       copyBtn.textContent = 'Copied!';
       setTimeout(() => {
         copyBtn.textContent = 'Copy';
       }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
+    } catch (err) {
+      // fallback
+      hiddenInput.select();
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        } else {
+          throw new Error();
+        }
+      } catch {
+        alert('Copy not supported in this browser. Please copy manually.');
+      }
     }
   });
 
