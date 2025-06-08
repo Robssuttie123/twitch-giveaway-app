@@ -432,19 +432,21 @@
   const overlayInput = document.getElementById('overlay-url');
   const copyBtn = document.getElementById('copy-btn');
 
-  fetch('/api/overlay-id')
-    .then(res => res.json())
-    .then(data => {
-      if (data.overlayId) {
-        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
-        overlayInput.value = overlayUrl;
-      } else {
-        overlayInput.value = 'Overlay URL not available';
-      }
-    })
-    .catch(() => {
-      overlayInput.value = 'Error fetching overlay URL';
-    });
+fetch('/api/overlay-id')
+  .then(res => res.json())
+  .then(data => {
+    console.log("Fetched Overlay ID: ", data);  // Add this to log the response
+    if (data.overlayId) {
+      const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+      overlayInput.value = overlayUrl;
+    } else {
+      overlayInput.value = 'Overlay URL not available';
+    }
+  })
+  .catch((err) => {
+    console.error('Error fetching overlay URL:', err); // Log any error
+    overlayInput.value = 'Error fetching overlay URL';
+  });
 
   copyBtn.addEventListener('click', () => {
     overlayInput.select();
