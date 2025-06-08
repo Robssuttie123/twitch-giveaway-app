@@ -68,6 +68,7 @@ app.get('/get-giveaway', authMiddleware, (req, res) => {
 
 // Route to handle overlay (still keeping your existing functionality)
 app.get('/api/overlay-id', (req, res) => {
+  console.log('Session:', req.session);  // Debugging line
   if (req.session && req.session.overlayId) {
     res.json({ overlayId: req.session.overlayId });
   } else {
