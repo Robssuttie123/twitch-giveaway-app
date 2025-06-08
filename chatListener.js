@@ -1,6 +1,6 @@
 const tmi = require('tmi.js');
 
-let enteredUsers = new Set(); // ✅ Moved outside the function for persistent tracking
+const enteredUsers = new Set(); // ✅ Moved outside the function for persistent tracking
 
 /**
  * Clears the list of users who have already entered the giveaway.
