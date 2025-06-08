@@ -218,8 +218,104 @@ app.get('/logout', async (req, res) => {
     console.log('Chat client disconnected on logout.');
   }
   req.session.destroy(() => {
-    res.redirect('/');
+    res.redirect('/?loggedout=true');
   });
+});
+
+app.get('/', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to the Giveaway App</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.7);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    a.login-btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      background-color: #4a90e2;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+    }
+    a.login-btn:hover {
+      background-color: #357abd;
+    }
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .popup {
+      position: fixed;
+      bottom: 2rem;
+      background-color: rgba(0,0,0,0.8);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+      animation: fadein 0.3s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the Simple Giveaway App</h1>
+  <p> The most simple and efficient tool for Twitch giveaways! </p>
+  <a href="/auth/twitch" class="login-btn">Login with Twitch</a>
+  <footer>Powered by Robssuttie123</footer>
+
+  <script>
+    // Show logout popup if ?loggedout=true in URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('loggedout') === 'true') {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.innerText = 'You have been logged out successfully!';
+      document.body.appendChild(popup);
+      setTimeout(() => {
+        popup.remove();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>`);
 });
 
 // Return current giveaway entries for dashboard
