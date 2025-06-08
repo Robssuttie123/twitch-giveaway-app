@@ -504,12 +504,8 @@ const overlayInput = document.getElementById('overlay-url');
         if (successful) {
           copyBtn.textContent = 'Copied!';
           setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
-        } else {
-          throw new Error();
-        }
-      } catch {
-        alert('Copy not supported in this browser. Please copy manually.');
-      }
+        } 
+      } 
     }
   });
 
@@ -575,9 +571,7 @@ const overlayInput = document.getElementById('overlay-url');
       setTimeout(() => {
         copyBtn.textContent = 'Copy';
       }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
-    }
+    } 
   });
 
   }
