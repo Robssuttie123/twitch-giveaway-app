@@ -8,7 +8,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
  
 let chatClient = null;
-// Removed global giveawayEntries; using session-based entries
+// Removed global req.session.giveawayState ? req.session.giveawayState.entries : new Set(); using session-based entries
 let giveawayCommand = '!giveaway';  // This can be updated dynamically
  
 const http = require('http');
@@ -54,7 +54,7 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 // On client connection (overlay or dashboard)
 io.on('connection', (socket) => {
   console.log('Client connected via WebSocket');
-  socket.emit('entries', Array.from(giveawayEntries));
+  socket.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
@@ -73,9 +73,9 @@ io.on('connection', (socket) => {
 // Emit new giveaway entries to all connected clients
 function onNewEntry(user) {
   const normalizedUser = user.toLowerCase();
-  if (giveawayEntries.has(normalizedUser)) return; // Prevent duplicates
+  if (req.session.giveawayState ? req.session.giveawayState.entries : new Set().has(normalizedUser)) return; // Prevent duplicates
   console.log(`New giveaway entry: ${user}`);
-  giveawayEntries.add(normalizedUser);
+  req.session.giveawayState ? req.session.giveawayState.entries : new Set().add(normalizedUser);
   io.emit('newEntry', user);
 }
 
@@ -138,7 +138,7 @@ app.get('/auth/twitch/callback', async (req, res) => {
       await chatClient.disconnect();
     }
 
-    giveawayEntries = new Set(); // Reset entries on new login
+    req.session.giveawayState ? req.session.giveawayState.entries : new Set() = new Set(); // Reset entries on new login
 
     chatClient = startChatListener(
       username,
@@ -265,16 +265,16 @@ app.get('/', (req, res) => {
 // Return current giveaway entries for dashboard
 app.get('/giveaway/entries', (req, res) => {
   res.json({
-    entries: Array.from(giveawayEntries),
-    count: giveawayEntries.size,
+    entries: Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()),
+    count: req.session.giveawayState ? req.session.giveawayState.entries : new Set().size,
   });
 });
 
 // Clear giveaway entries
 app.post('/giveaway/clear', (req, res) => {
-  giveawayEntries.clear();
+  req.session.giveawayState ? req.session.giveawayState.entries : new Set().clear();
   resetEntries();  // clear chatListener entries if applicable
-  io.emit('entries', Array.from(giveawayEntries));
+  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
   res.sendStatus(200);
 });
 
@@ -282,11 +282,11 @@ app.post('/giveaway/clear', (req, res) => {
 app.get('/giveaway/winner', (req, res) => {
   const count = parseInt(req.query.count) || 1;
 
-  if (giveawayEntries.size === 0) {
+  if (req.session.giveawayState ? req.session.giveawayState.entries : new Set().size === 0) {
     return res.status(400).json({ error: 'No entries to pick from' });
   }
 
-  const entriesArray = Array.from(giveawayEntries);
+  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set());
 
   if (count > entriesArray.length) {
     return res.status(400).json({ error: 'Not enough entries for that many winners' });
@@ -305,11 +305,11 @@ app.get('/giveaway/winner', (req, res) => {
 app.get('/giveaway/redraw_winner', (req, res) => {
   const count = parseInt(req.query.count) || 1;
 
-  if (giveawayEntries.size === 0) {
+  if (req.session.giveawayState ? req.session.giveawayState.entries : new Set().size === 0) {
     return res.status(400).json({ error: 'No entries to pick from' });
   }
 
-  const entriesArray = Array.from(giveawayEntries);
+  const entriesArray = Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set());
 
   if (count > entriesArray.length) {
     return res.status(400).json({ error: 'Not enough entries for that many winners' });
@@ -326,9 +326,9 @@ app.get('/giveaway/redraw_winner', (req, res) => {
 
 // Start a new giveaway - essentially clear current entries
 app.post('/giveaway/new', (req, res) => {
-  giveawayEntries.clear();
+  req.session.giveawayState ? req.session.giveawayState.entries : new Set().clear();
   resetEntries();
-  io.emit('entries', Array.from(giveawayEntries));
+  io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
   res.sendStatus(200);
 });
 
@@ -340,9 +340,9 @@ app.post('/giveaway/kick', (req, res) => {
   }
 
   const normalizedUser = username.toLowerCase();
-  if (giveawayEntries.has(normalizedUser)) {
-    giveawayEntries.delete(normalizedUser);
-    io.emit('entries', Array.from(giveawayEntries));
+  if (req.session.giveawayState ? req.session.giveawayState.entries : new Set().has(normalizedUser)) {
+    req.session.giveawayState ? req.session.giveawayState.entries : new Set().delete(normalizedUser);
+    io.emit('entries', Array.from(req.session.giveawayState ? req.session.giveawayState.entries : new Set()));
     return res.sendStatus(200);
   } else {
     return res.status(404).json({ error: 'User not found in entries' });
