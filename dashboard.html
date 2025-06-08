@@ -432,10 +432,12 @@
   const overlayInput = document.getElementById('overlay-url');
   const copyBtn = document.getElementById('copy-btn');
 
+console.log("Attempting to fetch overlay ID..."); // Add this log
+
 fetch('/api/overlay-id')
   .then(res => res.json())
   .then(data => {
-    console.log("Fetched Overlay ID: ", data);  // Add this to log the response
+    console.log("Fetched Overlay ID: ", data);  // Add this log
     if (data.overlayId) {
       const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
       overlayInput.value = overlayUrl;
