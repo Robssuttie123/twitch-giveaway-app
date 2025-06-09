@@ -28,11 +28,16 @@ const io = new Server(server);
 app.use(express.json());
 
 // Session middleware for handling user-specific sessions
+app.set('trust proxy', 1); // trust first proxy (Render, in this case)
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING', // Set a strong secret key in production
+  secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }, // Set to true for HTTPS
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // secure only in production
+    sameSite: 'lax', // helps with cross-site issues
+  },
 }));
 
 // Auth middleware to ensure users are logged in for certain routes
