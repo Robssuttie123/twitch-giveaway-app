@@ -145,7 +145,6 @@ function onNewEntry(user, username) {
   console.log(`New giveaway entry: ${user}`);
   giveawayEntries.add(normalizedUser);
   io.emit('newEntry', user);
-}
 
 // Twitch app credentials
 const CLIENT_ID = process.env.CLIENT_ID;
