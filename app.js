@@ -16,6 +16,11 @@ app.use(cors({
   credentials: true,  // Allow cookies (session) to be sent with requests
 }));
 
+app.use(cors({
+  origin: 'https://robssuttie123.github.io',
+  credentials: true
+}));
+
 let chatClient = null;
 let giveawayEntries = new Set();
 let giveawayCommand = '!giveaway';  // This can be updated dynamically
@@ -33,11 +38,12 @@ app.set('trust proxy', 1); // trust first proxy (Render, in this case)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // secure only in production
-    sameSite: 'lax', // helps with cross-site issues
-  },
+    secure: true,            // required for 'SameSite: None'
+    sameSite: 'none',        // allow cross-site cookie sending
+    httpOnly: true
+  }
 }));
 
 // Auth middleware to ensure users are logged in for certain routes
