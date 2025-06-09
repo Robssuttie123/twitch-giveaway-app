@@ -32,7 +32,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING', // Set a strong secret key in production
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }, // Set to true for HTTPS
+  cookie: { secure: true }, // Set to true for HTTPS
 }));
 
 // Auth middleware to ensure users are logged in for certain routes
