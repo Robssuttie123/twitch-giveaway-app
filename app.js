@@ -21,15 +21,14 @@ app.use(cors({
   credentials: true
 }));
 
-const userChatClients = new Map();
-const userGiveawayEntries = new Map();
-const userCommands = new Map();  // This can be updated dynamically
+let chatClient = null;
+let giveawayEntries = new Set();
+let giveawayCommand = '!giveaway';  // This can be updated dynamically
 
 const http = require('http');
 const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server);
-const sessionSockets = new Map();
 
 app.use(express.json());
 
@@ -79,8 +78,6 @@ app.get('/get-giveaway', authMiddleware, (req, res) => {
 
 // Route to handle overlay (still keeping your existing functionality)
 app.get('/api/overlay-id', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', 'https://robssuttie123.github.io');
   console.log('Session:', req.session);  // Debugging line
   if (req.session && req.session.overlayId) {
     res.json({ overlayId: req.session.overlayId });
@@ -101,14 +98,6 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 
 // On client connection (overlay or dashboard)
 io.on('connection', (socket) => {
-  const req = socket.request;
-  if (req.session && req.session.username) {
-    const username = req.session.username;
-    sessionSockets.set(username, socket);
-    if (userGiveawayEntries.has(username)) {
-      socket.emit('entries', Array.from(userGiveawayEntries.get(username)));
-    }
-  }
   console.log('Client connected via WebSocket');
   socket.emit('entries', Array.from(giveawayEntries));
 
@@ -127,24 +116,13 @@ io.on('connection', (socket) => {
 });
 
 // Emit new giveaway entries to all connected clients
-function onNewEntry(user, username) {
-  const normalizedUser = user.toLowerCase();
-  if (!userGiveawayEntries.has(username)) return;
-
-  const entries = userGiveawayEntries.get(username);
-  if (entries.has(normalizedUser)) return;
-
-  entries.add(normalizedUser);
-  const userSocket = sessionSockets.get(username);
-  if (userSocket) {
-    userSocket.emit('newEntry', user);
-  }
-}
+function onNewEntry(user) {
   const normalizedUser = user.toLowerCase();
   if (giveawayEntries.has(normalizedUser)) return; // Prevent duplicates
-  console.log(`New giveaway entry: ${username}`);
+  console.log(`New giveaway entry: ${user}`);
   giveawayEntries.add(normalizedUser);
   io.emit('newEntry', user);
+}
 
 // Twitch app credentials
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -196,18 +174,6 @@ app.get('/auth/twitch/callback', async (req, res) => {
     req.session.username = username;
 
     req.session.overlayId = crypto.randomBytes(16).toString('hex');
-
-    // Initialize per-user state
-    userGiveawayEntries.set(username, new Set());
-    userCommands.set(username, giveawayCommand);
-    const chatClient = startChatListener(
-      username,
-      req.session.accessToken,
-      username,
-      userCommands.get(username),
-      onNewEntry
-    );
-    userChatClients.set(username, chatClient);
 
     // Disconnect previous chat client if exists
     if (chatClient) {
@@ -340,11 +306,9 @@ app.get('/', (req, res) => {
 
 // Return current giveaway entries for dashboard
 app.get('/giveaway/entries', (req, res) => {
-  const username = req.session.username;
-  const entries = userGiveawayEntries.get(username) || new Set();
   res.json({
-    entries: Array.from(entries),
-    count: entries.size,
+    entries: Array.from(giveawayEntries),
+    count: giveawayEntries.size,
   });
 });
 
