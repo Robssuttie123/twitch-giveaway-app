@@ -412,17 +412,16 @@
     liToRemove = null;
   }
 
-  confirmKickBtn.addEventListener('click', () => {
-if (confirmKickBtn && cancelKickBtn) {
-  confirmKickBtn.addEventListener('click', () => {
-    if (userToKick && liToRemove) {
-      kickUser(userToKick, liToRemove);
-    }
-    closeModal();
-  });
+  if (confirmKickBtn && cancelKickBtn) {
+    confirmKickBtn.addEventListener('click', () => {
+      if (userToKick && liToRemove) {
+        kickUser(userToKick, liToRemove);
+      }
+      closeModal();
+    });
 
-  cancelKickBtn.addEventListener('click', closeModal);
-}
+    cancelKickBtn.addEventListener('click', closeModal);
+  }
 
   // Close modal on Escape key
   document.addEventListener('keydown', (e) => {
