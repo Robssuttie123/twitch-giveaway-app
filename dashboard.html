@@ -375,15 +375,33 @@
       return;
     }
 
-    try {
-      const res = await fetch('/giveaway/command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command })
-      });
-      console.log('Response status:', res.status);
+try {
+  const res = await fetch('/giveaway/command', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command })
+  });
 
-      const data = await res.json();
+  let data;
+  try {
+    data = await res.json(); // try parsing it
+  } catch (jsonError) {
+    throw new Error(`Failed to parse JSON: ${jsonError.message}. Response text: ${await res.text()}`);
+  }
+
+  if (res.ok) {
+    commandFeedback.textContent = `Command set to: ${data.command}`;
+    commandFeedback.style.color = '#00ff00';
+  } else {
+    commandFeedback.textContent = data.error || 'Failed to set command';
+    commandFeedback.style.color = '#ff4444';
+  }
+} catch (err) {
+  console.error('Fetch error:', err);
+  commandFeedback.textContent = 'Error: ' + err.message;
+  commandFeedback.style.color = '#ff4444';
+}
+
       console.log('Response data:', data);
 
       if (res.ok) {
