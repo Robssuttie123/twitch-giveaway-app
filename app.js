@@ -38,10 +38,10 @@ app.set('trust proxy', 1); // trust first proxy (Render, in this case)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: true,         // Required for SameSite=None
-    sameSite: 'None'      // Required for cross-origin cookies
+    secure: true,
+    sameSite: 'None'
   }
 }));
 
