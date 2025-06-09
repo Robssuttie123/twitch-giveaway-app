@@ -142,7 +142,7 @@ function onNewEntry(user, username) {
 }
   const normalizedUser = user.toLowerCase();
   if (giveawayEntries.has(normalizedUser)) return; // Prevent duplicates
-  console.log(`New giveaway entry: ${user}`);
+  console.log(`New giveaway entry: ${username}`);
   giveawayEntries.add(normalizedUser);
   io.emit('newEntry', user);
 
