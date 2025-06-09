@@ -11,9 +11,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://Robssuttie123.github.io',  // Replace with your actual GitHub Pages URL
+  origin: 'https://robssuttie123.github.io',
   methods: ['GET', 'POST'],
-  credentials: true,  // Allow cookies (session) to be sent with requests
+  credentials: true
 }));
 
 app.use(cors({
@@ -38,11 +38,10 @@ app.set('trust proxy', 1); // trust first proxy (Render, in this case)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
-    secure: true,            // required for 'SameSite: None'
-    sameSite: 'none',        // allow cross-site cookie sending
-    httpOnly: true
+    secure: true,         // Required for SameSite=None
+    sameSite: 'None'      // Required for cross-origin cookies
   }
 }));
 
