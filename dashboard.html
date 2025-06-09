@@ -428,6 +428,47 @@
     }
   });
 
+
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  console.log('Fetching overlay ID...');
+  fetch('/api/overlay-id', {
+    credentials: 'include'
+  })
+    .then(async (res) => {
+      console.log('Response status:', res.status);
+      const data = await res.json();
+      console.log('Overlay response:', data);
+
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay ID not found';
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to fetch overlay ID:', err);
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999);
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
+
+
   // Fetch and display overlay URL
   const overlayInput = document.getElementById('overlay-url');
   const copyBtn = document.getElementById('copy-btn');
@@ -465,48 +506,6 @@ fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
       alert('Copy not supported on this browser. Please copy manually.');
     }
   });
-
-  
-  // Fetch and display overlay URL
-  const overlayInput = document.getElementById('overlay-url');
-  const copyBtn = document.getElementById('copy-btn');
-
-  console.log('Fetching overlay ID...');
-
-  fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
-    credentials: 'include'
-  })
-    .then(async (res) => {
-      console.log('Response status:', res.status);
-      const data = await res.json();
-      console.log('Overlay response:', data);
-
-      if (data.overlayId) {
-        const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
-        overlayInput.value = overlayUrl;
-      } else {
-        overlayInput.value = 'Overlay ID not found';
-      }
-    })
-    .catch((err) => {
-      console.error('Failed to fetch overlay ID:', err);
-      overlayInput.value = 'Error fetching overlay URL';
-    });
-
-  copyBtn.addEventListener('click', () => {
-    overlayInput.select();
-    overlayInput.setSelectionRange(0, 99999); // For mobile
-
-    if (document.execCommand('copy')) {
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => {
-        copyBtn.textContent = 'Copy';
-      }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
-    }
-  });
-
 
   // Initial state
   updateCount();
