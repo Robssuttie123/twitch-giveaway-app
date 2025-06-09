@@ -413,6 +413,8 @@
   }
 
   confirmKickBtn.addEventListener('click', () => {
+if (confirmKickBtn && cancelKickBtn) {
+  confirmKickBtn.addEventListener('click', () => {
     if (userToKick && liToRemove) {
       kickUser(userToKick, liToRemove);
     }
@@ -420,6 +422,7 @@
   });
 
   cancelKickBtn.addEventListener('click', closeModal);
+}
 
   // Close modal on Escape key
   document.addEventListener('keydown', (e) => {
