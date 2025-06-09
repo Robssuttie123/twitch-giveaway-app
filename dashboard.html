@@ -260,7 +260,45 @@
   <p>Powered by Robssuttie123</p>
 </footer>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js">
+  // Fetch and display overlay URL (Working Focus Code)
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  console.log("Attempting to fetch overlay ID...");
+
+  fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
+    credentials: 'include'
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Fetched Overlay ID: ", data);
+      if (data.overlayId) {
+        const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay URL not available';
+      }
+    })
+    .catch((err) => {
+      console.error('Error fetching overlay URL:', err);
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999);
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
+</script>
 <script>
   const socket = io();
   const entriesList = document.getElementById('entriesList');
@@ -428,29 +466,30 @@
     }
   });
 
+  // Initial state
+  updateCount();
 
-  // Fetch and display overlay URL
+  // Fetch and display overlay URL (Working Focus Code)
   const overlayInput = document.getElementById('overlay-url');
   const copyBtn = document.getElementById('copy-btn');
 
-  console.log('Fetching overlay ID...');
-  fetch('/api/overlay-id', {
+  console.log("Attempting to fetch overlay ID...");
+
+  fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
     credentials: 'include'
   })
-    .then(async (res) => {
-      console.log('Response status:', res.status);
-      const data = await res.json();
-      console.log('Overlay response:', data);
-
+    .then(res => res.json())
+    .then(data => {
+      console.log("Fetched Overlay ID: ", data);
       if (data.overlayId) {
         const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
         overlayInput.value = overlayUrl;
       } else {
-        overlayInput.value = 'Overlay ID not found';
+        overlayInput.value = 'Overlay URL not available';
       }
     })
     .catch((err) => {
-      console.error('Failed to fetch overlay ID:', err);
+      console.error('Error fetching overlay URL:', err);
       overlayInput.value = 'Error fetching overlay URL';
     });
 
@@ -467,48 +506,6 @@
     }
   });
 
-
-
-  // Fetch and display overlay URL
-  const overlayInput = document.getElementById('overlay-url');
-  const copyBtn = document.getElementById('copy-btn');
-
-console.log("Attempting to fetch overlay ID..."); // Add this log
-
-fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
-  credentials: 'include'
-})
-  .then(res => res.json())
-  .then(data => {
-    console.log("Fetched Overlay ID: ", data);  // Add this log
-    if (data.overlayId) {
-      const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
-      overlayInput.value = overlayUrl;
-    } else {
-      overlayInput.value = 'Overlay URL not available';
-    }
-  })
-  .catch((err) => {
-    console.error('Error fetching overlay URL:', err); // Log any error
-    overlayInput.value = 'Error fetching overlay URL';
-  });
-
-  copyBtn.addEventListener('click', () => {
-    overlayInput.select();
-    overlayInput.setSelectionRange(0, 99999); // For mobile
-
-    if (document.execCommand('copy')) {
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => {
-        copyBtn.textContent = 'Copy';
-      }, 2000);
-    } else {
-      alert('Copy not supported on this browser. Please copy manually.');
-    }
-  });
-
-  // Initial state
-  updateCount();
 </script>
 
 </body>
