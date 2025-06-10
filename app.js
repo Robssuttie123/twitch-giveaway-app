@@ -385,7 +385,6 @@ io.on('connection', (socket) => {
       console.log(`[${username}] Updated command to: ${newCommand}`);
     }
   });
-  const username = socket.request?.session?.passport?.user?.login;
   console.log('🔌 Socket connected:', username || 'unknown');
 });
     if (username && typeof newCommand === 'string') {
