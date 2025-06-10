@@ -3,7 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
 
-
+const app = express();
 
 // Auth middleware to ensure users are logged in for certain routes
 function authMiddleware(req, res, next) {
