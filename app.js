@@ -2,8 +2,52 @@ const { startChatListener, resetEntries } = require('./chatListener');
 const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
+const path = require('path');
+const crypto = require('crypto');
+const cors = require('cors');
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Promise Rejection:', reason);
+});
+
+// CORS configuration
+app.use(cors({
+  origin: 'https://robssuttie123.github.io',
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
+app.use(cors({
+  origin: 'https://robssuttie123.github.io',
+  credentials: true
+}));
+
+let chatClient = null;
+let giveawayEntries = new Set();
+let giveawayCommand = '!giveaway';  // This can be updated dynamically
+
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use(express.json());
+
+// Session middleware for handling user-specific sessions
+app.set('trust proxy', 1); // trust first proxy (Render, in this case)
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    sameSite: 'None'
+  }
+}));
 
 // Auth middleware to ensure users are logged in for certain routes
 function authMiddleware(req, res, next) {
@@ -58,7 +102,23 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 // Serve static assets if needed (like socket.io.js) - you already serve overlay and dashboard explicitly
 
 // On client connection (overlay or dashboard)
+io.on('connection', (socket) => {
+  console.log('Client connected via WebSocket');
+  socket.emit('entries', Array.from(giveawayEntries));
 
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+
+    // Optional: delay chat disconnect to allow page reloads
+    setTimeout(async () => {
+      if (chatClient) {
+        await chatClient.disconnect();
+        chatClient = null;
+        console.log('Chat client disconnected after delay.');
+      }
+    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
+  });
+});
 
 // Emit new giveaway entries to all connected clients
 function onNewEntry(user) {
@@ -366,48 +426,4 @@ app.post('/giveaway/command', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-// ---- SOCKET.IO SERVER SETUP ----
-
-
-io.use((socket, next) => {
-  const req = socket.request;
-  const res = req.res || {};
-  sessionMiddleware(req, res, next);
 });
-
-io.on('connection', (socket) => {
-  const username = socket.request?.session?.passport?.user?.login;
-  console.log('🔌 Socket connected:', username || 'unknown');
-
-  // Store socket by username if needed
-  socket.on('winner-picked', (winner) => {
-    console.log(`🎉 Winner picked by ${username}:`, winner);
-    // Optionally broadcast winner to overlay here
-  });
-});
-
-const io = new Server(server, {
-  cors: {
-    origin: 'https://robssuttie123.github.io',
-    credentials: true
-  }
-});
-
-io.on('connection', (socket) => {
-  console.log('Client connected via WebSocket');
-  socket.emit('entries', Array.from(giveawayEntries));
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-
-    // Optional: delay chat disconnect to allow page reloads
-    setTimeout(async () => {
-      if (chatClient) {
-        await chatClient.disconnect();
-        chatClient = null;
-        console.log('Chat client disconnected after delay.');
-      }
-    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
-  });
