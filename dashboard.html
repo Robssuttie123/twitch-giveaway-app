@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Debug OBS Overlay Fetch</title>
+  <title>Full Giveaway Dashboard</title>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" crossorigin="anonymous"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -20,6 +21,7 @@
     button {
       padding: 0.6rem 1rem;
       font-size: 1rem;
+      margin-top: 1rem;
     }
     pre {
       margin-top: 1rem;
@@ -27,13 +29,39 @@
       background: #222;
       color: #0f0;
     }
+    .entry-list {
+      margin-top: 1rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 1rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .entry-list span {
+      display: inline-block;
+      margin-right: 0.5rem;
+      background: rgba(0,0,0,0.3);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <h1>Overlay Debug Test</h1>
-  <input id="overlay-url" type="text" readonly />
-  <button id="copy-btn">Copy</button>
-  <pre id="log"></pre>
+  <h1>Giveaway Dashboard</h1>
+
+  <section>
+    <label><strong>OBS Overlay URL:</strong></label><br>
+    <input id="overlay-url" type="text" readonly />
+    <button id="copy-btn">Copy</button>
+    <pre id="log"></pre>
+  </section>
+
+  <section>
+    <h2>Entries (<span id="entry-count">0</span>)</h2>
+    <div class="entry-list" id="entry-list"></div>
+    <button id="btn-pick-winner">🎉 Pick Winner</button>
+    <div id="winner-display" style="margin-top: 1rem; font-weight: bold;"></div>
+  </section>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -43,10 +71,15 @@
         console.log(msg);
       };
 
-      log('✅ DOMContentLoaded fired');
-
       const overlayInput = document.getElementById('overlay-url');
       const copyBtn = document.getElementById('copy-btn');
+      const entryListEl = document.getElementById('entry-list');
+      const entryCountEl = document.getElementById('entry-count');
+      const winnerDisplay = document.getElementById('winner-display');
+      const btnPickWinner = document.getElementById('btn-pick-winner');
+      let entries = [];
+
+      log('✅ DOMContentLoaded fired');
 
       if (!overlayInput || !copyBtn) {
         log('❌ Missing overlayInput or copyBtn');
@@ -80,6 +113,36 @@
           copyBtn.textContent = 'Copy';
         }, 1500);
       });
+
+      // WebSocket logic
+      const socket = io('https://twitch-giveaway-app.onrender.com', {
+        withCredentials: true
+      });
+
+      socket.on('connect', () => {
+        log('🔌 Connected to WebSocket');
+      });
+
+      socket.on('entry', (username) => {
+        if (!entries.includes(username)) {
+          entries.push(username);
+          updateEntries();
+          log(`➕ New entry: ${username}`);
+        }
+      });
+
+      btnPickWinner.addEventListener('click', () => {
+        if (entries.length === 0) return;
+        const winner = entries[Math.floor(Math.random() * entries.length)];
+        winnerDisplay.textContent = `🎉 Winner: ${winner}`;
+        socket.emit('winner-picked', winner);
+        log(`🏆 Winner picked: ${winner}`);
+      });
+
+      function updateEntries() {
+        entryListEl.innerHTML = entries.map(e => `<span>${e}</span>`).join('');
+        entryCountEl.textContent = entries.length;
+      }
     });
   </script>
 </body>
