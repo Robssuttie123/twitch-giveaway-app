@@ -7,8 +7,13 @@ const userEntries = new Map();
 function startChatListener(channelName, oauthToken, username, command, onNewEntry) {
   // Disconnect existing client if already present
   if (chatClients.has(username)) {
-    chatClients.get(username).disconnect();
+  const client = chatClients.get(username);
+  if (client) {
+    client.disconnect().catch((err) => {
+      console.warn(`Failed to disconnect chat client for ${username}:`, err.message);
+    });
   }
+}
 
   const client = new tmi.Client({
     options: { debug: true },
