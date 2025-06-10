@@ -3,31 +3,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Full Giveaway Dashboard</title>
+  <title>Giveaway Dashboard</title>
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" crossorigin="anonymous"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: sans-serif;
-      padding: 2rem;
-      background: #1e1e2f;
+      margin: 0;
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      font-family: 'Montserrat', sans-serif;
       color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    label {
+      font-weight: bold;
     }
     input {
-      padding: 0.6rem;
-      width: 60%;
+      width: 75%;
+      padding: 0.75rem;
       font-size: 1rem;
-      margin-right: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      margin-top: 0.5rem;
     }
     button {
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 1.2rem;
       font-size: 1rem;
-      margin-top: 1rem;
+      background-color: #ffffff20;
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
-    pre {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #222;
-      color: #0f0;
+    button:hover {
+      background-color: #ffffff40;
+    }
+    .entry-section {
+      margin-top: 2rem;
     }
     .entry-list {
       margin-top: 1rem;
@@ -44,24 +77,38 @@
       padding: 0.3rem 0.6rem;
       border-radius: 4px;
     }
+    #winner-display {
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    pre {
+      margin-top: 1rem;
+      background: #111;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #0f0;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
   <h1>Giveaway Dashboard</h1>
+  <div class="container">
+    <section>
+      <label for="overlay-url">OBS Overlay URL:</label><br>
+      <input id="overlay-url" type="text" readonly />
+      <button id="copy-btn">Copy</button>
+      <pre id="log"></pre>
+    </section>
 
-  <section>
-    <label><strong>OBS Overlay URL:</strong></label><br>
-    <input id="overlay-url" type="text" readonly />
-    <button id="copy-btn">Copy</button>
-    <pre id="log"></pre>
-  </section>
-
-  <section>
-    <h2>Entries (<span id="entry-count">0</span>)</h2>
-    <div class="entry-list" id="entry-list"></div>
-    <button id="btn-pick-winner">🎉 Pick Winner</button>
-    <div id="winner-display" style="margin-top: 1rem; font-weight: bold;"></div>
-  </section>
+    <section class="entry-section">
+      <h2>Entries (<span id="entry-count">0</span>)</h2>
+      <div class="entry-list" id="entry-list"></div>
+      <button id="btn-pick-winner">🎉 Pick Winner</button>
+      <div id="winner-display"></div>
+    </section>
+  </div>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -80,13 +127,6 @@
       let entries = [];
 
       log('✅ DOMContentLoaded fired');
-
-      if (!overlayInput || !copyBtn) {
-        log('❌ Missing overlayInput or copyBtn');
-        return;
-      }
-
-      log('🔄 Starting fetch for overlay ID');
 
       fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
         credentials: 'include'
@@ -114,7 +154,6 @@
         }, 1500);
       });
 
-      // WebSocket logic
       const socket = io('https://twitch-giveaway-app.onrender.com', {
         withCredentials: true
       });
