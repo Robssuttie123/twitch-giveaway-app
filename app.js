@@ -373,9 +373,6 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // ---- SOCKET.IO SERVER SETUP ----
 
 
-
-
-
   const username = socket.request?.session?.passport?.user?.login;
   console.log('🔌 Socket connected:', username || 'unknown');
 
@@ -385,10 +382,6 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     // Optionally broadcast winner to overlay here
   });
 });
-
-
-
-
 
 
   console.log('Client connected via WebSocket');
@@ -429,5 +422,4 @@ socket.on('update-command', (newCommand) => {
       userSettings[username] = userSettings[username] || {};
       userSettings[username].command = newCommand.trim();
       console.log(`[${username}] Updated command to: ${newCommand}`);
-    }
-  });
+  }));
