@@ -369,8 +369,6 @@ app.post('/giveaway/command', async (req, res) => {
 // ---- SOCKET.IO SERVER SETUP ----
 
 
-  const username = socket.request?.session?.passport?.user?.login;
-  console.log('🔌 Socket connected:', username || 'unknown');
 
   // Store socket by username if needed
   socket.on('winner-picked', (winner) => {
@@ -378,8 +376,9 @@ app.post('/giveaway/command', async (req, res) => {
     // Optionally broadcast winner to overlay here
   });
 io.on('connection', (socket) => {
+  const username = socket.request?.session?.passport?.user?.login;
+  console.log('🔌 Socket connected:', username || 'unknown');
   socket.on('update-command', (newCommand) => {
-    const username = socket.request?.session?.passport?.user?.login;
     if (username && typeof newCommand === 'string') {
       userSettings[username] = userSettings[username] || {};
       userSettings[username].command = newCommand.trim();
