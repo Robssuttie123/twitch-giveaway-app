@@ -1,9 +1,11 @@
+const http = require('http');
 const { startChatListener, resetEntries } = require('./chatListener');
 const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
 
 const app = express();
+const server = http.createServer(app);
 
 // Auth middleware to ensure users are logged in for certain routes
 function authMiddleware(req, res, next) {
