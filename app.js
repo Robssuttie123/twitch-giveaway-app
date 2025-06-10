@@ -24,6 +24,7 @@ app.post('/start-giveaway', authMiddleware, (req, res) => {
   req.session.giveaway = {
     giveawayName,
     giveawayItems,
+  };
 
   res.send({ message: 'Giveaway started successfully' });
 });
