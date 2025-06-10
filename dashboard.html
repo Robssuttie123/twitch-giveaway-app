@@ -102,6 +102,13 @@
       <pre id="log"></pre>
     </section>
 
+    
+    <section style="margin-top: 2rem;">
+      <label for="entry-command">Entry Command (e.g. !enter):</label><br>
+      <input id="entry-command" type="text" placeholder="!enter" />
+      <button id="save-command-btn">Save</button>
+    </section>
+
     <section class="entry-section">
       <h2>Entries (<span id="entry-count">0</span>)</h2>
       <div class="entry-list" id="entry-list"></div>
@@ -177,6 +184,19 @@
         socket.emit('winner-picked', winner);
         log(`🏆 Winner picked: ${winner}`);
       });
+
+      
+      const entryCommandInput = document.getElementById('entry-command');
+      const saveCommandBtn = document.getElementById('save-command-btn');
+
+      saveCommandBtn.addEventListener('click', () => {
+        const newCommand = entryCommandInput.value.trim();
+        if (newCommand) {
+          socket.emit('update-command', newCommand);
+          log(`⚙️ Command updated to: ${newCommand}`);
+        }
+      });
+
 
       function updateEntries() {
         entryListEl.innerHTML = entries.map(e => `<span>${e}</span>`).join('');
