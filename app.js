@@ -59,7 +59,6 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 
 // On client connection (overlay or dashboard)
 
-});
 
 // Emit new giveaway entries to all connected clients
 function onNewEntry(user) {
@@ -412,4 +411,3 @@ io.on('connection', (socket) => {
       }
     }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
   });
- 
