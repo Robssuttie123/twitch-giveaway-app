@@ -416,10 +416,12 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-socket.on('update-command', (newCommand) => {
+  socket.on('update-command', (newCommand) => {
     const username = socket.request?.session?.passport?.user?.login;
     if (username && typeof newCommand === 'string') {
       userSettings[username] = userSettings[username] || {};
       userSettings[username].command = newCommand.trim();
       console.log(`[${username}] Updated command to: ${newCommand}`);
-  }));
+    }
+  });
+});
