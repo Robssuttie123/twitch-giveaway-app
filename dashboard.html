@@ -1,491 +1,105 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Giveaway Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clean Giveaway Dashboard</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
+      font-family: sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #4a90e2, #9013fe);
-      font-family: 'Montserrat', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      background: rgba(0,0,0,0.3);
-      padding: 1.5rem 2rem;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    header h1 {
-      margin: 0;
-      font-weight: 700;
-      font-size: 2.2rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }
-    main {
-      flex: 1;
+      background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
+      color: white;
       padding: 2rem;
-      max-width: 600px;
-      margin: 0 auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
     }
-    .logout-btn {
-      display: inline-block;
-      padding: 0.8rem 1.8rem;
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
+    .obs-block {
+      margin-bottom: 2rem;
+    }
+    input {
+      width: 70%%;
+      padding: 0.6rem;
       font-size: 1rem;
-      font-weight: 700;
-      color: white;
-      background-color: #4a90e2;
-      border-radius: 8px;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      transition: background-color 0.3s ease;
-      margin-bottom: 0.5rem;
-    }
-    .logout-btn:hover {
-      background-color: #357abd;
-    }
-    .count {
-      font-size: 3rem;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: 2px;
-      text-shadow: 0 3px 6px rgba(0,0,0,0.7);
-    }
-    .entries {
-      background: rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 1rem 2rem;
-      max-height: 300px;
-      overflow-y: auto;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    }
-    .entries ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .entries li {
-      font-size: 1.25rem;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      transition: background-color 0.3s ease;
-      cursor: default;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .entries li:last-child {
-      border-bottom: none;
-    }
-    .entries li.new-entry {
-      animation: highlight 2s ease forwards;
-    }
-    @keyframes highlight {
-      0% {
-        background-color: rgba(255, 255, 255, 0.4);
-      }
-      100% {
-        background-color: transparent;
-      }
-    }
-    .kick-btn {
-      background-color: #ff4d4d;
-      border: none;
-      color: white;
-      font-weight: 700;
-      font-size: 0.9rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      transition: background-color 0.3s ease;
-    }
-    .kick-btn:hover {
-      background-color: #d93636;
-    }
-    .buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      align-items: center;
     }
     button {
-      background-color: #4a90e2;
-      border: none;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: background-color 0.3s ease;
-    }
-    button:hover:enabled {
-      background-color: #357abd;
-    }
-    button:disabled {
-      background-color: rgba(74, 144, 226, 0.5);
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    .winner {
-      margin-top: 1rem;
-      font-size: 1.5rem;
-      text-align: center;
-      font-weight: 700;
-      color: #ffd700;
-      text-shadow: 0 0 5px #ffd700;
-    }
-    input[type="number"], input[type="text"] {
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: none;
-      font-size: 1rem;
-      text-align: center;
-    }
-    input[type="number"] {
-      width: 60px;
-    }
-    .number-winners-container {
-      margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .number-winners-container label {
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      font-size: 1rem;
-    }
-    .command-setter {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-      align-items: center;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-    .command-setter input {
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      border: none;
-      font-size: 1rem;
-      width: 200px;
-    }
-    .command-setter button {
       padding: 0.6rem 1rem;
       font-size: 1rem;
-      background-color: #00c853;
+      margin-left: 0.5rem;
     }
-    .command-setter button:hover {
-      background-color: #00a045;
-    }
-    .command-feedback {
-      text-align: center;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #fff;
-    }
-    footer {
-      text-align: center;
+    pre {
+      margin-top: 1rem;
+      background: #111;
       padding: 1rem;
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.6);
+      color: #0f0;
     }
   </style>
 </head>
 <body>
-
-<header>
   <h1>Giveaway Dashboard</h1>
-</header>
 
-<main>
-  <div class="count" id="entryCount">Entries: 0</div>
+  <section class="obs-block">
+    <label for="overlay-url"><strong>OBS Overlay URL:</strong></label><br>
+    <input id="overlay-url" type="text" readonly />
+    <button id="copy-btn">Copy</button>
+    <pre id="log"></pre>
+  </section>
 
-  <div class="entries" aria-live="polite" aria-relevant="additions removals" aria-label="List of giveaway entries">
-    <ul id="entriesList"></ul>
-  </div>
+  <section class="placeholder">
+    <p>🎯 <em>This is a clean rebuild. Re-add your giveaway features below.</em></p>
+    <p>✅ Entry counter, winner picker, and WebSocket logic can be added here.</p>
+  </section>
 
-  <div class="buttons">
-    <button id="btnClear" aria-label="Clear all entries">Clear Entries</button>
-    <button id="btnPickWinner" aria-label="Pick giveaway winner(s)">Pick Winner(s)</button>
-  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const overlayInput = document.getElementById('overlay-url');
+      const copyBtn = document.getElementById('copy-btn');
+      const logBox = document.getElementById('log');
 
-  <div class="number-winners-container">
-    <label for="winnerCount">Number of winners</label>
-    <input
-      type="number"
-      id="winnerCount"
-      min="1"
-      max="100"
-      value="1"
-      oninput="if(this.value < 1) this.value = 1; else if(this.value > 100) this.value = 100;"
-      step="1"
-      aria-label="Number of winners to pick"
-    />
-  </div>
-
-  <div class="command-setter">
-    <input type="text" id="commandInput" placeholder="Enter new command (e.g., !enter)" aria-label="Enter new giveaway command" value="!" autocomplete="off" />
-    <button id="setCommandBtn" aria-label="Set new giveaway command">Set Command</button>
-  </div>
-  <div class="command-feedback" id="commandFeedback" role="alert" aria-live="polite"></div>
-
-  <div class="winner" id="winnerAnnouncement" aria-live="assertive" aria-atomic="true"></div>
-
-  <div style="margin: 20px 0;">
-    <label for="overlay-url" style="font-weight: bold;">Your OBS Overlay URL:</label><br />
-    <input id="overlay-url" type="text" readonly style="width: 80%; padding: 8px; font-size: 1rem;" />
-      <pre id="log" style="margin-top:10px;color:white;background:#222;padding:10px;"></pre>
-    <button id="copy-btn" style="padding: 8px 12px; font-size: 1rem; margin-left: 8px; cursor: pointer;">Copy</button>
-  </div>
-
-</main>
-
-<footer>
-  <a href="/logout" class="logout-btn">Logout</a>
-  <p>Powered by Robssuttie123</p>
-</footer>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const entriesList = document.getElementById('entriesList');
-  const entryCount = document.getElementById('entryCount');
-  const winnerAnnouncement = document.getElementById('winnerAnnouncement');
-  const commandInput = document.getElementById('commandInput');
-  const setCommandBtn = document.getElementById('setCommandBtn');
-  const commandFeedback = document.getElementById('commandFeedback');
-  const btnClear = document.getElementById('btnClear');
-  const btnPickWinner = document.getElementById('btnPickWinner');
-  const winnerCountInput = document.getElementById('winnerCount');
-  const kickModal = document.getElementById('kickModal');
-  const modalUsernameElem = document.getElementById('modalUsername');
-  const confirmKickBtn = document.getElementById('confirmKickBtn');
-  const cancelKickBtn = document.getElementById('cancelKickBtn');
-
-  const currentEntries = new Set();
-
-  function updateCount() {
-    entryCount.textContent = `Entries: ${currentEntries.size}`;
-    const disabled = currentEntries.size === 0;
-    btnClear.disabled = disabled;
-    btnPickWinner.disabled = disabled;
-  }
-
-  function clearEntries() {
-    currentEntries.clear();
-    entriesList.innerHTML = '';
-    updateCount();
-  }
-
-  function addEntry(username) {
-    if (currentEntries.has(username)) return;
-    currentEntries.add(username);
-
-    const li = document.createElement('li');
-    li.classList.add('new-entry');
-
-    const kickBtn = document.createElement('button');
-    kickBtn.textContent = 'Kick';
-    kickBtn.classList.add('kick-btn');
-    kickBtn.setAttribute('aria-label', `Kick ${username} from giveaway`);
-    kickBtn.addEventListener('click', () => {
-      userToKick = username;
-      liToRemove = li;
-      modalUsernameElem.textContent = username;
-      openModal();
-    });
-
-    li.textContent = '';
-    li.appendChild(document.createTextNode(username));
-    li.appendChild(kickBtn);
-
-    entriesList.appendChild(li);
-    li.addEventListener('animationend', () => {
-      li.classList.remove('new-entry');
-    });
-
-    updateCount();
-  }
-
-  // WebSocket listeners
-  socket.on('entries', (entries) => {
-    clearEntries();
-    entries.forEach(username => addEntry(username));
-  });
-
-  socket.on('newEntry', (username) => {
-    addEntry(username);
-  });
-
-  btnClear.onclick = async () => {
-    const res = await fetch('/giveaway/clear', { method: 'POST' });
-    if (res.ok) clearEntries();
-    else alert('Failed to clear entries');
-  };
-
-  btnPickWinner.onclick = async () => {
-    if (currentEntries.size === 0) {
-      alert('No entries to pick from!');
-      return;
-    }
-
-    let count = parseInt(winnerCountInput.value, 10);
-    if (isNaN(count) || count < 1) count = 1;
-
-    if (count > currentEntries.size) {
-      alert(`Cannot pick more winners than entries (${currentEntries.size})`);
-      return;
-    }
-
-    const res = await fetch(`/giveaway/winner?count=${count}`);
-    const data = await res.json();
-
-    if (res.ok) {
-      if (Array.isArray(data.winners)) {
-        winnerAnnouncement.textContent = `🎉 Winners: ${data.winners.join(', ')} 🎉`;
-      } else {
-        winnerAnnouncement.textContent = `🎉 Winner: ${data.winner} 🎉`;
+      if (!overlayInput || !copyBtn) {
+        const msg = '❌ overlayInput or copyBtn not found in DOM.';
+        console.error(msg);
+        if (logBox) logBox.textContent = msg;
+        return;
       }
-    } else {
-      alert(data.error || 'Failed to pick winner(s)');
-    }
-  };
 
-  setCommandBtn.onclick = async () => {
-    const command = commandInput.value.trim();
-    console.log('Attempting to set command:', command);
+      logBox.textContent = '🔄 Fetching overlay ID...';
 
-    if (!command.startsWith('!')) {
-      alert('Command must start with "!"');
-      return;
-    }
-
-    try {
-      const res = await fetch('/giveaway/command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command })
-      });
-      console.log('Response status:', res.status);
-
-      const data = await res.json();
-      console.log('Response data:', data);
-
-      if (res.ok) {
-        commandFeedback.textContent = `Command set to: ${data.command}`;
-        commandFeedback.style.color = '#00ff00';
-      } else {
-        commandFeedback.textContent = data.error || 'Failed to set command';
-        commandFeedback.style.color = '#ff4444';
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      commandFeedback.textContent = 'Error: ' + err.message;
-      commandFeedback.style.color = '#ff4444';
-    }
-  };
-
-  // Modal control functions
-  function openModal() {
-    kickModal.classList.add('active');
-    kickModal.focus();
-  }
-
-  function closeModal() {
-    kickModal.classList.remove('active');
-    userToKick = null;
-    liToRemove = null;
-  }
-
-  confirmKickBtn.addEventListener('click', () => {
-    if (userToKick && liToRemove) {
-      kickUser(userToKick, liToRemove);
-    }
-    closeModal();
-  });
-
-  cancelKickBtn.addEventListener('click', closeModal);
-
-  // Close modal on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && kickModal.classList.contains('active')) {
-      closeModal();
-    }
-  });
-
-  // Fetch and display overlay URL
-  // Fetch and display overlay URL 
-  
-  window.addEventListener('DOMContentLoaded', () => {
-    const overlayInput = document.getElementById('overlay-url');
-    const copyBtn = document.getElementById('copy-btn');
-    const logBox = document.getElementById('log');
-
-    if (!overlayInput || !copyBtn) {
-      const msg = '❌ overlayInput or copyBtn not found in DOM.';
-      console.error(msg);
-      if (logBox) logBox.textContent = msg;
-      return;
-    }
-
-    logBox.textContent = '🔄 Fetching overlay ID...';
-
-    fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
-      credentials: 'include'
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        console.log('✅ API response:', data);
-        if (logBox) logBox.textContent = JSON.stringify(data, null, 2);
-
-        if (data.overlayId) {
-          const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
-          overlayInput.value = overlayUrl;
-        } else {
-          overlayInput.value = 'Overlay ID not found';
-        }
+      fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
+        credentials: 'include'
       })
-      .catch((err) => {
-        console.error('❌ Fetch failed:', err);
-        overlayInput.value = 'Error fetching overlay URL';
-        if (logBox) logBox.textContent = err.toString();
+        .then(async (res) => {
+          const data = await res.json();
+          console.log('✅ API response:', data);
+          if (logBox) logBox.textContent = JSON.stringify(data, null, 2);
+
+          if (data.overlayId) {
+            const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
+            overlayInput.value = overlayUrl;
+          } else {
+            overlayInput.value = 'Overlay ID not found';
+          }
+        })
+        .catch((err) => {
+          console.error('❌ Fetch failed:', err);
+          overlayInput.value = 'Error fetching overlay URL';
+          if (logBox) logBox.textContent = err.toString();
+        });
+
+      copyBtn.addEventListener('click', () => {
+        overlayInput.select();
+        overlayInput.setSelectionRange(0, 99999);
+        if (document.execCommand('copy')) {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+          }, 2000);
+        } else {
+          alert('Copy not supported on this browser. Please copy manually.');
+        }
       });
-
-    copyBtn.addEventListener('click', () => {
-      overlayInput.select();
-      overlayInput.setSelectionRange(0, 99999);
-      if (document.execCommand('copy')) {
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy';
-        }, 2000);
-      } else {
-        alert('Copy not supported on this browser. Please copy manually.');
-      }
     });
-  });
-
-});
-
-  // Initial state
-  updateCount();
-</script>
-
+  </script>
 </body>
 </html>
