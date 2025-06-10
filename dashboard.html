@@ -3,159 +3,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Giveaway Dashboard</title>
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" crossorigin="anonymous"></script>
+  <title>Debug OBS Overlay Fetch</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
-      margin: 0;
-      background: linear-gradient(135deg, #4a90e2, #9013fe);
-      font-family: 'Montserrat', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      padding: 1rem 2rem;
-      background: rgba(0,0,0,0.2);
-      backdrop-filter: blur(10px);
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-    }
-    main {
-      flex: 1;
+      font-family: sans-serif;
       padding: 2rem;
+      background: #1e1e2f;
+      color: #fff;
     }
     input {
-      width: 70%%;
       padding: 0.6rem;
+      width: 60%;
       font-size: 1rem;
-      border: none;
-      border-radius: 6px;
+      margin-right: 0.5rem;
     }
     button {
       padding: 0.6rem 1rem;
       font-size: 1rem;
-      margin: 0.5rem 0;
-      background-color: #ffffff20;
-      color: #fff;
-      border: 1px solid #fff;
-      border-radius: 6px;
-      cursor: pointer;
     }
-    button:hover {
-      background-color: #ffffff40;
-    }
-    .entry-list {
+    pre {
       margin-top: 1rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 6px;
       padding: 1rem;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .entry-list span {
-      display: inline-block;
-      margin-right: 0.5rem;
-      background: rgba(0,0,0,0.3);
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
+      background: #222;
+      color: #0f0;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Giveaway Dashboard</h1>
-  </header>
-  <main>
-    <section>
-      <label><strong>OBS Overlay URL:</strong></label><br>
-      <input id="overlay-url" type="text" readonly />
-      <button id="copy-btn">Copy</button>
-      <pre id="log"></pre>
-    </section>
-
-    <section>
-      <h2>Entries (<span id="entry-count">0</span>)</h2>
-      <div class="entry-list" id="entry-list"></div>
-      <button id="btn-pick-winner">🎉 Pick Winner</button>
-      <div id="winner-display" style="margin-top: 1rem; font-weight: bold;"></div>
-    </section>
-  </main>
+  <h1>Overlay Debug Test</h1>
+  <input id="overlay-url" type="text" readonly />
+  <button id="copy-btn">Copy</button>
+  <pre id="log"></pre>
 
   <script>
-    const overlayInput = document.getElementById('overlay-url');
-    const copyBtn = document.getElementById('copy-btn');
-    const logBox = document.getElementById('log');
-    const entryListEl = document.getElementById('entry-list');
-    const entryCountEl = document.getElementById('entry-count');
-    const winnerDisplay = document.getElementById('winner-display');
-    const btnPickWinner = document.getElementById('btn-pick-winner');
-
-    let entries = [];
-
     window.addEventListener('DOMContentLoaded', () => {
+      const log = (msg) => {
+        const logBox = document.getElementById('log');
+        logBox.textContent += '\n' + msg;
+        console.log(msg);
+      };
+
+      log('✅ DOMContentLoaded fired');
+
+      const overlayInput = document.getElementById('overlay-url');
+      const copyBtn = document.getElementById('copy-btn');
+
+      if (!overlayInput || !copyBtn) {
+        log('❌ Missing overlayInput or copyBtn');
+        return;
+      }
+
+      log('🔄 Starting fetch for overlay ID');
+
       fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
         credentials: 'include'
       })
-        .then(async (res) => {
-          const data = await res.json();
-          console.log('✅ API response:', data);
+        .then(res => res.json())
+        .then(data => {
+          log('✅ Received response: ' + JSON.stringify(data));
           if (data.overlayId) {
-            const overlayUrl = \`https://twitch-giveaway-app.onrender.com/overlay/\${data.overlayId}\`;
-            overlayInput.value = overlayUrl;
+            overlayInput.value = 'https://twitch-giveaway-app.onrender.com/overlay/' + data.overlayId;
           } else {
             overlayInput.value = 'Overlay ID not found';
           }
         })
-        .catch((err) => {
-          console.error('❌ Fetch failed:', err);
-          overlayInput.value = 'Error fetching overlay URL';
+        .catch(err => {
+          log('❌ Fetch failed: ' + err.message);
+          overlayInput.value = 'Fetch error';
         });
 
       copyBtn.addEventListener('click', () => {
         overlayInput.select();
-        overlayInput.setSelectionRange(0, 99999);
-        if (document.execCommand('copy')) {
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => {
-            copyBtn.textContent = 'Copy';
-          }, 2000);
-        } else {
-          alert('Copy not supported on this browser. Please copy manually.');
-        }
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+        }, 1500);
       });
-
-      const socket = io('https://twitch-giveaway-app.onrender.com', {
-        withCredentials: true
-      });
-
-      socket.on('connect', () => {
-        console.log('🔌 Connected to giveaway server');
-      });
-
-      socket.on('entry', (username) => {
-        if (!entries.includes(username)) {
-          entries.push(username);
-          updateEntries();
-        }
-      });
-
-      btnPickWinner.addEventListener('click', () => {
-        if (entries.length === 0) return;
-        const winner = entries[Math.floor(Math.random() * entries.length)];
-        winnerDisplay.textContent = `🎉 Winner: ${winner}`;
-        socket.emit('winner-picked', winner);
-      });
-
-      function updateEntries() {
-        entryListEl.innerHTML = entries.map(e => \`<span>\${e}</span>\`).join('');
-        entryCountEl.textContent = entries.length;
-      }
     });
   </script>
 </body>
