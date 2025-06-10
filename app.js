@@ -9,6 +9,10 @@ const cors = require('cors');
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Promise Rejection:', reason);
+});
+
 // CORS configuration
 app.use(cors({
   origin: 'https://robssuttie123.github.io',
