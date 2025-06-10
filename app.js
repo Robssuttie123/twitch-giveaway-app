@@ -373,21 +373,9 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // ---- SOCKET.IO SERVER SETUP ----
 
 
-io.use((socket, next) => {
-  const req = socket.request;
-  const res = req.res || {};
-  sessionMiddleware(req, res, next);
-});
 
-io.on('connection', (socket) => {
-socket.on('update-command', (newCommand) => {
-    const username = socket.request?.session?.passport?.user?.login;
-    if (username && typeof newCommand === 'string') {
-      userSettings[username] = userSettings[username] || {};
-      userSettings[username].command = newCommand.trim();
-      console.log(`[${username}] Updated command to: ${newCommand}`);
-    }
-  });
+
+
   const username = socket.request?.session?.passport?.user?.login;
   console.log('🔌 Socket connected:', username || 'unknown');
 
@@ -398,24 +386,11 @@ socket.on('update-command', (newCommand) => {
   });
 });
 
-const io = new Server(server, {
-  cors: {
-    origin: 'https://robssuttie123.github.io',
-    credentials: true
-  }
-});
 
 
 
-io.on('connection', (socket) => {
-socket.on('update-command', (newCommand) => {
-    const username = socket.request?.session?.passport?.user?.login;
-    if (username && typeof newCommand === 'string') {
-      userSettings[username] = userSettings[username] || {};
-      userSettings[username].command = newCommand.trim();
-      console.log(`[${username}] Updated command to: ${newCommand}`);
-    }
-  });
+
+
   console.log('Client connected via WebSocket');
   socket.emit('entries', Array.from(giveawayEntries));
 
@@ -433,3 +408,26 @@ socket.on('update-command', (newCommand) => {
   });
 }
 );
+
+const io = new Server(server, {
+  cors: {
+    origin: 'https://robssuttie123.github.io',
+    credentials: true
+  }
+});
+
+io.use((socket, next) => {
+  const req = socket.request;
+  const res = req.res || {};
+  sessionMiddleware(req, res, next);
+});
+
+io.on('connection', (socket) => {
+socket.on('update-command', (newCommand) => {
+    const username = socket.request?.session?.passport?.user?.login;
+    if (username && typeof newCommand === 'string') {
+      userSettings[username] = userSettings[username] || {};
+      userSettings[username].command = newCommand.trim();
+      console.log(`[${username}] Updated command to: ${newCommand}`);
+    }
+  });
