@@ -463,6 +463,39 @@
       alert('Copy not supported on this browser. Please copy manually.');
     }
   });
+  
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
+    credentials: 'include'
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (data.overlayId) {
+        const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
+        overlayInput.value = overlayUrl;
+      } else {
+        overlayInput.value = 'Overlay ID not found';
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to fetch overlay ID:', err);
+      overlayInput.value = 'Error fetching overlay URL';
+    });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999);
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
 
 
   // Initial state
