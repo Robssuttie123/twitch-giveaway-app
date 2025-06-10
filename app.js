@@ -24,7 +24,6 @@ app.post('/start-giveaway', authMiddleware, (req, res) => {
   req.session.giveaway = {
     giveawayName,
     giveawayItems,
-  };
 
   res.send({ message: 'Giveaway started successfully' });
 });
@@ -382,10 +381,7 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   const username = socket.request?.session?.passport?.user?.login;
   console.log('🔌 Socket connected:', username || 'unknown');
-  socket.on('winner-picked', (winner) => {
-    console.log(`🎉 Winner picked by ${username}:`, winner);
-    // Optionally broadcast winner to overlay here
-  });
+
   socket.on('update-command', (newCommand) => {
     if (username && typeof newCommand === 'string') {
       userSettings[username] = userSettings[username] || {};
@@ -393,13 +389,17 @@ io.on('connection', (socket) => {
       console.log(`[${username}] Updated command to: ${newCommand}`);
     }
   });
+  const username = socket.request?.session?.passport?.user?.login;
+  console.log('🔌 Socket connected:', username || 'unknown');
+  socket.on('winner-picked', (winner) => {
+    console.log(`🎉 Winner picked by ${username}:`, winner);
+    // Optionally broadcast winner to overlay here
+  });
+  socket.on('update-command', (newCommand) => {
+    }
+  });
   console.log('🔌 Socket connected:', username || 'unknown');
 });
-    if (username && typeof newCommand === 'string') {
-      userSettings[username] = userSettings[username] || {};
-      userSettings[username].command = newCommand.trim();
-      console.log(`[${username}] Updated command to: ${newCommand}`);
-};
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
