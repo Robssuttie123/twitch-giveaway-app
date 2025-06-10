@@ -2,52 +2,17 @@ const { startChatListener, resetEntries } = require('./chatListener');
 const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
-const path = require('path');
-const crypto = require('crypto');
-const cors = require('cors');
-
-const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
-
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Promise Rejection:', reason);
-});
-
-// CORS configuration
-app.use(cors({
-  origin: 'https://robssuttie123.github.io',
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
-
-app.use(cors({
-  origin: 'https://robssuttie123.github.io',
-  credentials: true
-}));
-
-let chatClient = null;
-let giveawayEntries = new Set();
-let giveawayCommand = '!giveaway';  // This can be updated dynamically
-
-const http = require('http');
-const { Server } = require('socket.io');
-const server = http.createServer(app);
-const io = new Server(server);
-
-app.use(express.json());
-
-// Session middleware for handling user-specific sessions
-app.set('trust proxy', 1); // trust first proxy (Render, in this case)
-
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'BLANK_FOR_TESTING',
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,
-    sameSite: 'None'
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'none',
+    secure: true
   }
-}));
+});
+app.use(sessionMiddleware);
 
 // Auth middleware to ensure users are logged in for certain routes
 function authMiddleware(req, res, next) {
@@ -426,3 +391,29 @@ app.post('/giveaway/command', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+// ---- SOCKET.IO SERVER SETUP ----
+const io = new Server(server, {
+  cors: {
+    origin: 'https://robssuttie123.github.io',
+    credentials: true
+  }
+});
+
+io.use((socket, next) => {
+  const req = socket.request;
+  const res = req.res || {};
+  sessionMiddleware(req, res, next);
+});
+
+io.on('connection', (socket) => {
+  const username = socket.request?.session?.passport?.user?.login;
+  console.log('🔌 Socket connected:', username || 'unknown');
+
+  // Store socket by username if needed
+  socket.on('winner-picked', (winner) => {
+    console.log(`🎉 Winner picked by ${username}:`, winner);
+    // Optionally broadcast winner to overlay here
+  });
+});
