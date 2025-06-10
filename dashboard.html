@@ -440,7 +440,6 @@
     .then(async (res) => {
       const data = await res.json();
       console.log('API response:', data);
-      if (logBox) logBox.textContent = JSON.stringify(data, null, 2);
 
       if (data.overlayId) {
         const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
@@ -452,7 +451,6 @@
     .catch((err) => {
       console.error('Fetch failed:', err);
       overlayInput.value = 'Error fetching overlay URL';
-      if (logBox) logBox.textContent = err.toString();
     });
 
   copyBtn.addEventListener('click', () => {
