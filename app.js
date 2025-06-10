@@ -380,9 +380,6 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  const username = socket.request?.session?.passport?.user?.login;
-  console.log('🔌 Socket connected:', username || 'unknown');
-
   socket.on('update-command', (newCommand) => {
     if (username && typeof newCommand === 'string') {
       userSettings[username] = userSettings[username] || {};
