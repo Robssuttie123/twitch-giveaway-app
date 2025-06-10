@@ -396,8 +396,6 @@ const io = new Server(server, {
   }
 });
 
-
-
 io.on('connection', (socket) => {
   console.log('Client connected via WebSocket');
   socket.emit('entries', Array.from(giveawayEntries));
@@ -414,3 +412,4 @@ io.on('connection', (socket) => {
       }
     }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
   });
+ 
