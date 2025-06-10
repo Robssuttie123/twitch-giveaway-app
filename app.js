@@ -58,22 +58,7 @@ app.get('/dashboard', authMiddleware, (req, res) => {
 // Serve static assets if needed (like socket.io.js) - you already serve overlay and dashboard explicitly
 
 // On client connection (overlay or dashboard)
-io.on('connection', (socket) => {
-  console.log('Client connected via WebSocket');
-  socket.emit('entries', Array.from(giveawayEntries));
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-
-    // Optional: delay chat disconnect to allow page reloads
-    setTimeout(async () => {
-      if (chatClient) {
-        await chatClient.disconnect();
-        chatClient = null;
-        console.log('Chat client disconnected after delay.');
-      }
-    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
-  });
 });
 
 // Emit new giveaway entries to all connected clients
@@ -385,12 +370,7 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 // ---- SOCKET.IO SERVER SETUP ----
-const io = new Server(server, {
-  cors: {
-    origin: 'https://robssuttie123.github.io',
-    credentials: true
-  }
-});
+
 
 io.use((socket, next) => {
   const req = socket.request;
@@ -408,3 +388,29 @@ io.on('connection', (socket) => {
     // Optionally broadcast winner to overlay here
   });
 });
+
+const io = new Server(server, {
+  cors: {
+    origin: 'https://robssuttie123.github.io',
+    credentials: true
+  }
+});
+
+
+
+io.on('connection', (socket) => {
+  console.log('Client connected via WebSocket');
+  socket.emit('entries', Array.from(giveawayEntries));
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+
+    // Optional: delay chat disconnect to allow page reloads
+    setTimeout(async () => {
+      if (chatClient) {
+        await chatClient.disconnect();
+        chatClient = null;
+        console.log('Chat client disconnected after delay.');
+      }
+    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
+  });
