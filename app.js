@@ -424,4 +424,3 @@ io.on('connection', (socket) => {
       console.log(`[${username}] Updated command to: ${newCommand}`);
     }
   });
-});
