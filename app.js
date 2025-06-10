@@ -117,6 +117,23 @@ io.on('connection', (socket) => {
         console.log('Chat client disconnected after delay.');
       }
     }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
+  socket.on('update-command', (newCommand) => {
+    const username = socket.request?.session?.passport?.user?.login;
+    if (username && typeof newCommand === 'string') {
+      userSettings[username] = userSettings[username] || {};
+      userSettings[username].command = newCommand.trim();
+      console.log(`[${username}] Updated command to: ${newCommand}`);
+    }
+  });
+
+  socket.on('winner-picked', (winner) => {
+    const username = socket.request?.session?.passport?.user?.login;
+    if (username) {
+      if (connectedOverlays[username]) {
+        connectedOverlays[username].emit('winner', winner);
+      }
+    }
+  });
   });
 });
 
