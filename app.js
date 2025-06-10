@@ -2,17 +2,8 @@ const { startChatListener, resetEntries } = require('./chatListener');
 const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
-const sessionMiddleware = session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'none',
-    secure: true
-  }
-});
-app.use(sessionMiddleware);
+
+
 
 // Auth middleware to ensure users are logged in for certain routes
 function authMiddleware(req, res, next) {
