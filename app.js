@@ -413,7 +413,7 @@ io.use((socket, next) => {
   const req = socket.request;
   const res = req.res || {};
   sessionMiddleware(req, res, next);
-});
+}
 
 io.on('connection', (socket) => {
   socket.on('update-command', (newCommand) => {
@@ -422,5 +422,7 @@ io.on('connection', (socket) => {
       userSettings[username] = userSettings[username] || {};
       userSettings[username].command = newCommand.trim();
       console.log(`[${username}] Updated command to: ${newCommand}`);
-    }
-  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
