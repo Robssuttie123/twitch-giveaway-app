@@ -429,3 +429,5 @@ socket.on('update-command', (newCommand) => {
       }
     }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
   });
+}
+);
