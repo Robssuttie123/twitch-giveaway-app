@@ -371,6 +371,14 @@ app.post('/giveaway/command', async (req, res) => {
 
 
   // Store socket by username if needed
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: 'https://robssuttie123.github.io',
+    credentials: true
+  }
+});
+
 io.on('connection', (socket) => {
   const username = socket.request?.session?.passport?.user?.login;
   console.log('🔌 Socket connected:', username || 'unknown');
