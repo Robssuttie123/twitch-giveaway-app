@@ -375,33 +375,15 @@
       return;
     }
 
-try {
-  const res = await fetch('/giveaway/command', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ command })
-  });
+    try {
+      const res = await fetch('/giveaway/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command })
+      });
+      console.log('Response status:', res.status);
 
-  let data;
-  try {
-    data = await res.json(); // try parsing it
-  } catch (jsonError) {
-    throw new Error(`Failed to parse JSON: ${jsonError.message}. Response text: ${await res.text()}`);
-  }
-
-  if (res.ok) {
-    commandFeedback.textContent = `Command set to: ${data.command}`;
-    commandFeedback.style.color = '#00ff00';
-  } else {
-    commandFeedback.textContent = data.error || 'Failed to set command';
-    commandFeedback.style.color = '#ff4444';
-  }
-} catch (err) {
-  console.error('Fetch error:', err);
-  commandFeedback.textContent = 'Error: ' + err.message;
-  commandFeedback.style.color = '#ff4444';
-}
-
+      const data = await res.json();
       console.log('Response data:', data);
 
       if (res.ok) {
@@ -430,16 +412,14 @@ try {
     liToRemove = null;
   }
 
-  if (confirmKickBtn && cancelKickBtn) {
-    confirmKickBtn.addEventListener('click', () => {
-      if (userToKick && liToRemove) {
-        kickUser(userToKick, liToRemove);
-      }
-      closeModal();
-    });
+  confirmKickBtn.addEventListener('click', () => {
+    if (userToKick && liToRemove) {
+      kickUser(userToKick, liToRemove);
+    }
+    closeModal();
+  });
 
-    cancelKickBtn.addEventListener('click', closeModal);
-  }
+  cancelKickBtn.addEventListener('click', closeModal);
 
   // Close modal on Escape key
   document.addEventListener('keydown', (e) => {
@@ -452,23 +432,64 @@ try {
   const overlayInput = document.getElementById('overlay-url');
   const copyBtn = document.getElementById('copy-btn');
 
-  console.log("Attempting to fetch overlay ID...");
+console.log("Attempting to fetch overlay ID..."); // Add this log
+
+fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
+  credentials: 'include'
+})
+  .then(res => res.json())
+  .then(data => {
+    console.log("Fetched Overlay ID: ", data);  // Add this log
+    if (data.overlayId) {
+      const overlayUrl = `${window.location.origin}/overlay/${data.overlayId}`;
+      overlayInput.value = overlayUrl;
+    } else {
+      overlayInput.value = 'Overlay URL not available';
+    }
+  })
+  .catch((err) => {
+    console.error('Error fetching overlay URL:', err); // Log any error
+    overlayInput.value = 'Error fetching overlay URL';
+  });
+
+  copyBtn.addEventListener('click', () => {
+    overlayInput.select();
+    overlayInput.setSelectionRange(0, 99999); // For mobile
+
+    if (document.execCommand('copy')) {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } else {
+      alert('Copy not supported on this browser. Please copy manually.');
+    }
+  });
+
+  
+  // Fetch and display overlay URL
+  const overlayInput = document.getElementById('overlay-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  console.log('Fetching overlay ID...');
 
   fetch('https://twitch-giveaway-app.onrender.com/api/overlay-id', {
     credentials: 'include'
   })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Fetched Overlay ID: ", data);
+    .then(async (res) => {
+      console.log('Response status:', res.status);
+      const data = await res.json();
+      console.log('Overlay response:', data);
+
       if (data.overlayId) {
         const overlayUrl = `https://twitch-giveaway-app.onrender.com/overlay/${data.overlayId}`;
         overlayInput.value = overlayUrl;
       } else {
-        overlayInput.value = 'Overlay URL not available';
+        overlayInput.value = 'Overlay ID not found';
       }
     })
     .catch((err) => {
-      console.error('Error fetching overlay URL:', err);
+      console.error('Failed to fetch overlay ID:', err);
       overlayInput.value = 'Error fetching overlay URL';
     });
 
@@ -485,6 +506,7 @@ try {
       alert('Copy not supported on this browser. Please copy manually.');
     }
   });
+
 
   // Initial state
   updateCount();
