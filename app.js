@@ -381,40 +381,6 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     console.log(`🎉 Winner picked by ${username}:`, winner);
     // Optionally broadcast winner to overlay here
   });
-});
-
-
-  console.log('Client connected via WebSocket');
-  socket.emit('entries', Array.from(giveawayEntries));
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-
-    // Optional: delay chat disconnect to allow page reloads
-    setTimeout(async () => {
-      if (chatClient) {
-        await chatClient.disconnect();
-        chatClient = null;
-        console.log('Chat client disconnected after delay.');
-      }
-    }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
-  });
-}
-);
-
-const io = new Server(server, {
-  cors: {
-    origin: 'https://robssuttie123.github.io',
-    credentials: true
-  }
-});
-
-io.use((socket, next) => {
-  const req = socket.request;
-  const res = req.res || {};
-  sessionMiddleware(req, res, next);
-}
-
 io.on('connection', (socket) => {
   socket.on('update-command', (newCommand) => {
     const username = socket.request?.session?.passport?.user?.login;
@@ -422,7 +388,14 @@ io.on('connection', (socket) => {
       userSettings[username] = userSettings[username] || {};
       userSettings[username].command = newCommand.trim();
       console.log(`[${username}] Updated command to: ${newCommand}`);
+    }
+  });
 });
+    if (username && typeof newCommand === 'string') {
+      userSettings[username] = userSettings[username] || {};
+      userSettings[username].command = newCommand.trim();
+      console.log(`[${username}] Updated command to: ${newCommand}`);
+};
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
