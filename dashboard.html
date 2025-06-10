@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +101,6 @@
       <pre id="log"></pre>
     </section>
 
-    
     <section style="margin-top: 2rem;">
       <label for="entry-command">Entry Command (e.g. !enter):</label><br>
       <input id="entry-command" type="text" placeholder="!enter" />
@@ -197,9 +195,8 @@
         }
       });
 
-
       function updateEntries() {
-        entryListEl.innerHTML = entries.map(e => `<span>${e}</span>`).join('');
+        entryListEl.innerHTML = entries.map(e => `<span>${e}</span>`).join(' ');
         entryCountEl.textContent = entries.length;
       }
     });
