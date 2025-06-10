@@ -6,14 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clean Giveaway Dashboard</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
-      font-family: sans-serif;
       margin: 0;
-      background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
-      color: white;
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      padding: 1rem 2rem;
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    main {
+      flex: 1;
       padding: 2rem;
     }
-    h1 { font-size: 2rem; margin-bottom: 1rem; }
     .obs-block {
       margin-bottom: 2rem;
     }
@@ -21,11 +36,21 @@
       width: 70%%;
       padding: 0.6rem;
       font-size: 1rem;
+      border: none;
+      border-radius: 6px;
     }
     button {
       padding: 0.6rem 1rem;
       font-size: 1rem;
       margin-left: 0.5rem;
+      background-color: #ffffff20;
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ffffff40;
     }
     pre {
       margin-top: 1rem;
@@ -33,8 +58,9 @@
       padding: 1rem;
       font-size: 0.9rem;
       color: #0f0;
+      border-radius: 6px;
     }
-  </style>
+</style>
 </head>
 <body>
   <h1>Giveaway Dashboard</h1>
