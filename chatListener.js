@@ -1,3 +1,4 @@
+const userSettingsMap = new Map();
 const tmi = require('tmi.js');
 
 // Store per-user chat clients and entries
@@ -65,7 +66,6 @@ function getEntries(username) {
 function kickEntry(username, entry) {
   if (userEntries.has(username)) {
     const entries = userEntries.get(username);
-const userSettingsMap = new Map();
     entries.delete(entry.toLowerCase());
   }
 }
