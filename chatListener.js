@@ -1,3 +1,19 @@
+function handleChatMessage(username, channel, userstate, message) {
+  const entryCommand = userSettings[username]?.command || '!enter';
+  const chatUser = userstate['display-name'] || userstate.username;
+
+  if (message.toLowerCase().startsWith(entryCommand.toLowerCase())) {
+    if (!userEntries[username]) userEntries[username] = new Set();
+
+    if (userEntries[username].has(chatUser)) return; // Prevent duplicates
+
+    userEntries[username].add(chatUser);
+    io.to(username).emit('entry', chatUser); // Notify dashboard
+
+    console.log(`[${username}] New entry: ${chatUser}`);
+  }
+}
+
 const tmi = require('tmi.js');
 
 // Store per-user chat clients and entries
@@ -34,9 +50,6 @@ function startChatListener(channelName, oauthToken, username, command, onNewEntr
   });
 
   client.on('message', (channel, tags, message, self) => {
-    const expectedCommand = userSettings[username]?.command || '!enter';
-    console.log(`[${username}] expected command: ${expectedCommand}`);
-    console.log(`[${username}] received message: ${message}`);
     if (self) return;
 
     if (message.trim().toLowerCase() === command.toLowerCase()) {
