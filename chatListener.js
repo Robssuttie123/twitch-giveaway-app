@@ -75,10 +75,13 @@ module.exports = {
   kickEntry,
 };
 
-  chatListener.updateCommand = function (newCommand) {
     if (userSettings[username]) {
       userSettings[username].command = newCommand;
     }
+startChatListener.updateCommand = function (username, newCommand) {
+  if (userSettings[username]) {
+    userSettings[username].command = newCommand;
+    console.log(`[${username}] Updated command to: ${newCommand}`);
+  }
+};
   };
-
-  return chatListener;
