@@ -6,6 +6,7 @@ const userEntries = new Map();
 
 function startChatListener(channelName, oauthToken, username, command, onNewEntry) {
   // Disconnect existing client if already present
+  userSettingsMap.set(username, userSettings[username]);
   if (chatClients.has(username)) {
   const client = chatClients.get(username);
   if (client) {
@@ -64,23 +65,30 @@ function getEntries(username) {
 function kickEntry(username, entry) {
   if (userEntries.has(username)) {
     const entries = userEntries.get(username);
+const userSettingsMap = new Map();
     entries.delete(entry.toLowerCase());
   }
 }
 
-module.exports = {
-  startChatListener,
-  resetEntries,
-  getEntries,
-  kickEntry,
-};
+startChatListener.updateCommand = function (username, newCommand) {
+  if (userSettings[username]) {
+    userSettings[username].command = newCommand;
+    console.log(`[${username}] Updated command to: ${newCommand}`);
+}
+  }
+  const settings = userSettingsMap.get(username);
+  if (settings) {
+    settings.command = newCommand;
+    console.log(`[${username}] Updated command to: ${newCommand}`);
+  }
 
     if (userSettings[username]) {
       userSettings[username].command = newCommand;
     }
 startChatListener.updateCommand = function (username, newCommand) {
-  if (userSettings[username]) {
-    userSettings[username].command = newCommand;
+  const settings = userSettingsMap.get(username);
+  if (settings) {
+    settings.command = newCommand;
     console.log(`[${username}] Updated command to: ${newCommand}`);
   }
-};
+}
