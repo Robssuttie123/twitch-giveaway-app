@@ -82,7 +82,6 @@ app.get('/get-giveaway', authMiddleware, (req, res) => {
 
 // Route to handle overlay (still keeping your existing functionality)
 app.get('/api/overlay-id', (req, res) => {
-  console.log('[overlay-id] session:', req.session);
   console.log('Session:', req.session);  // Debugging line
   if (req.session && req.session.overlayId) {
     res.json({ overlayId: req.session.overlayId });
@@ -117,23 +116,6 @@ io.on('connection', (socket) => {
         console.log('Chat client disconnected after delay.');
       }
     }, 60 * 60 * 1000); // 1 hour, because Gingr is slow
-  socket.on('update-command', (newCommand) => {
-    const username = socket.request?.session?.passport?.user?.login;
-    if (username && typeof newCommand === 'string') {
-      userSettings[username] = userSettings[username] || {};
-      userSettings[username].command = newCommand.trim();
-      console.log(`[${username}] Updated command to: ${newCommand}`);
-    }
-  });
-
-  socket.on('winner-picked', (winner) => {
-    const username = socket.request?.session?.passport?.user?.login;
-    if (username) {
-      if (connectedOverlays[username]) {
-        connectedOverlays[username].emit('winner', winner);
-      }
-    }
-  });
   });
 });
 
