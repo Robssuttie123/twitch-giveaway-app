@@ -6,8 +6,8 @@ const chatClients = new Map();
 const userEntries = new Map();
 
 function startChatListener(channelName, oauthToken, username, command, onNewEntry) {
-  // Disconnect existing client if already present
   userSettingsMap.set(username, userSettings[username]);
+  // Disconnect existing client if already present
   if (chatClients.has(username)) {
   const client = chatClients.get(username);
   if (client) {
