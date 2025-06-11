@@ -84,4 +84,3 @@ startChatListener.updateCommand = function (username, newCommand) {
     console.log(`[${username}] Updated command to: ${newCommand}`);
   }
 };
-  };
